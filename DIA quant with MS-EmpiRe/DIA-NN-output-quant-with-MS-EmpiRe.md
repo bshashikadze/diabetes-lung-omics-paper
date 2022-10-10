@@ -79,16 +79,3 @@ msempire_data <- pepquantify::pepquantify_funs(data_raw, condition1 = "MIDY", co
 ``` r
 msempire_calculation(msempire_data, fc_threshold = 1.5)
 ```
-
-    ## [1] "final error: 0.762124"
-    ## [1] "final error: 0.76472"
-    ## [1] 0.7621244
-    ## [1] 0.7647205
-    ## [1] "detecting mode"
-    ## [1] "mode: -0.2"
-    ## [1] "Final error: 0.760565"
-    ## [1] "numeric" "numeric" "numeric" "numeric" "numeric" "numeric"
-    ## three files were saved in the working directory:
-    ##     1 - msempire_results_raw:     this is the raw results of MS-EmpiRe
-    ##     2 - msempire_results_tidy:    this is the results that has been cleaned-up and can be used in suppl tables
-    ##     3 - msempire_results_volcano: some columns was adjusted to make it suitable for the volcano plot
