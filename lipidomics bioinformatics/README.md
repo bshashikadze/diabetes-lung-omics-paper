@@ -1,0 +1,331 @@
+Multi (uni-) variate analysis of lipidomics data
+================
+B.Shashikadze
+21/08/2022
+
+### load libraries
+
+``` r
+library(tidyverse) 
+library(ggrepel)  
+library(ropls)    
+```
+
+
+``` r
+library(ggpubr)
+```
+
+### load omics data and clean-up
+
+Normal wide-table format with compound names as rows followed by the
+samples as columns
+
+``` r
+data_raw <- read.delim("lipidomics_raw.txt", sep = "\t", header = T, check.names = F) %>% 
+  filter(if_all(-contains("Compound"), ~ (.x >= 0))) 
+
+# class of each column
+sapply(data_raw, class)
+```
+
+``` r
+# convert all but first column to numeric
+data_raw[ , 2:10] <- apply(data_raw[ , 2:10], 2,            
+                    function(x) as.numeric(as.character(x)))
+```
+
+### define groups
+
+``` r
+Bioreplicate <- names(data_raw)[-1]
+Condition <- Bioreplicate
+Groups <- data.frame(Bioreplicate, Condition)
+write.table(Groups, "conditions.txt", row.names = F, quote = F, sep = "\t")
+cat("conditions file was generated rename the file as Groups_modified, and modify the second column according to groups")
+```
+
+
+### read modified Groups file
+
+``` r
+Groups <- read.delim("conditions_modified.txt", header = T, sep = "\t")
+Groups$Bioreplicate  <- as.character(Groups$Bioreplicate)
+```
+
+### function to calculate p-values and fold changes
+
+``` r
+statistic_function <- function(data, conditions_data, condition, parametric = TRUE, first_group, padjmethod = "BH", id_name, values_log) {
+
+  if (values_log == TRUE) {
+    data_long <- data %>% 
+    pivot_longer(names_to = "Bioreplicate", values_to = "Intensity", -!!as.symbol(id_name)) %>%
+    left_join(conditions_data)
+  }
+  
+  if (values_log == FALSE) {
+    data_long <- data %>% 
+    pivot_longer(names_to = "Bioreplicate", values_to = "Intensity", -!!as.symbol(id_name)) %>%
+    mutate(Intensity = log2(Intensity)) %>% 
+    left_join(conditions_data)
+  }
+  
+  #fold-change calculation    
+    data_fc <- data_long %>% 
+    group_by(!!as.symbol(id_name), !!as.symbol(condition)) %>% 
+    summarise(grp_mean = mean(Intensity)) %>% 
+    ungroup() 
+  
+    
+  if (first_group %in% unique(data_fc[[2]][2])) {
+    data_fc <- data_fc %>% 
+     select(-all_of(condition)) %>% 
+     group_by(!!as.symbol(id_name)) %>% 
+     mutate(l2fc=grp_mean-lag(grp_mean)) %>% 
+     select(-grp_mean)  %>% 
+     drop_na()
+     }
+  
+   else{
+    data_fc <- data_fc  %>% 
+    select(-all_of(condition)) %>%  
+    group_by(!!as.symbol(id_name))  %>% 
+    mutate(l2fc=grp_mean-lead(grp_mean)) %>% 
+    select(-grp_mean)   %>% 
+    drop_na()
+     }
+    
+    cat(paste("positive fold change means up in", first_group, sep=" "))
+  
+  # statistics calculation 
+  if (parametric == TRUE) {
+   
+  data_p <- data_long  %>% 
+  group_by(!!as.symbol(id_name))  %>% 
+  summarise(t.test_p.val = t.test(Intensity ~ !!as.symbol(condition), var.equal=F)$p.value) %>% 
+  left_join(data_fc)  
+  data_p$p.adj <- p.adjust(data_p$t.test_p.val, method = padjmethod)
+    
+  cat(paste("p-values were adjusted using the", padjmethod, "method", sep=" "))
+    
+  return(data_p)}
+  
+  else {
+  
+  data_p <- data_long %>% 
+  group_by(!!as.symbol(id_name))  %>% 
+  summarise(wilk.test_p.val = wilcox.test(Intensity ~ !!as.symbol(condition), exact = F)$p.value) %>% 
+  left_join(data_fc)
+  
+  data_p$p.adj <- p.adjust(data_p$wilk.test_p.val, method = padjmethod)
+  
+  cat(paste("p-values were adjusted using the", padjmethod, "method", sep=" "))
+    
+    return(data_p)
+    }}
+
+statistics_data <- statistic_function(data_raw, Groups, condition = "Condition", parametric = TRUE, first_group = "MIDY", padjmethod = "none", id_name = "Compound", values_log = F)
+```
+
+
+## multivariate analysis
+
+### prepare data for the multivariate analysis
+
+``` r
+multivariate_prep_function <- function(data){
+  data <- data %>% 
+          column_to_rownames(var="Compound") %>% 
+          log2() %>% 
+          t() %>% 
+          as.data.frame()
+}
+data_multi <- multivariate_prep_function(data_raw)
+```
+
+### principal component analysis (calculations)
+
+``` r
+pca_function <- function(data) {
+  PCA <- prcomp(data)
+  pca.data <- data.frame(Bioreplicate=rownames(PCA$x),
+  X=PCA$x[,1],
+  Y=PCA$x[,2])
+  pca.var <- PCA$sdev^2
+  pca.var.per <- round(pca.var/sum(pca.var)*100,1)
+  pca.data <- pca.data %>% 
+    left_join(Groups)
+  data_pca <- list()
+  data_pca[[1]] <- pca.data
+  data_pca[[2]] <- pca.var.per
+  return(data_pca)
+}
+data_pca <- pca_function(data_multi)
+```
+
+
+### principal component analysis (plotting)
+
+``` r
+pcaplot <- ggplot(data=data_pca[[1]], aes(x=X, y=Y, label=Bioreplicate, fill= Condition))+
+geom_point(size = 3.5, shape = 21)+
+scale_fill_manual(values=c('MIDY' = "firebrick3", 'WT' = "#0072B2"))+
+geom_text_repel(colour="black", size = 3.5, box.padding = 0.3)+
+xlab(paste("PC axis 1 - ", data_pca[[2]][1], "%", sep=""))+
+ylab(paste("PC axis 2 - ", data_pca[[2]][2], "%", sep=""))+
+geom_hline(yintercept = 0, linetype = "dashed")+
+geom_vline(xintercept = 0, linetype = "dashed")+
+theme_bw() + theme(panel.border = element_rect(size = 1),
+                   axis.title = element_text(size = 10, colour="black"), 
+                   axis.text.x = element_text(size=10, colour="black"),
+                   axis.text.y = element_text(size = 10, colour="black"),
+panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+                      theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), legend.title = element_blank(), legend.text = element_text(size = 10))
+```
+
+### Orthogonal Projections to Latent Structures Discriminant Analysis (OPLS-DA) (calculations)
+
+``` r
+oplsda_function <- function (data, scaling = "pareto", n_perm = 200, 
+                             n_crossval = 9, 
+                             vip_thresh = 1.5)  {
+  Grouping     <- Groups[, "Condition"]
+  oplsda_model <- opls(data, Grouping, predI = 1, 
+                      orthoI = NA, permI = n_perm, 
+                      scaleC = scaling, 
+                      crossvalI = n_crossval, subset = NULL) 
+          p1          <- round(oplsda_model@modelDF$`R2X(cum)`[1]*100)
+    loadings          <- getLoadingMN(oplsda_model)
+  oplsda_vip          <- oplsda_model@vipVn %>% 
+    as.data.frame() %>% 
+    rownames_to_column() %>% 
+    rename(Compound = rowname, VIP = 2) %>% 
+    left_join(statistics_data) %>% 
+    mutate(VIP_sig = case_when(VIP > vip_thresh ~ "+")) %>% 
+    mutate(Regulation = case_when(
+      l2fc > 0 & VIP_sig == "+" ~ "upregulated",
+      l2fc < 0 & VIP_sig == "+" ~ "downregulated",
+      TRUE ~ "n.s."
+    ))  
+  oplsda_vip$Compound <- factor(oplsda_vip$Compound, levels = oplsda_vip$Compound[order(oplsda_vip$VIP)])
+  oplsda_pred         <- as.data.frame(oplsda_model@scoreMN)
+  oplsda_ortho        <- as.data.frame(oplsda_model@orthoScoreMN)
+  oplsda_components   <- cbind(oplsda_pred, oplsda_ortho, Groups)
+  data_oplsda         <- list()
+  data_oplsda[[1]]    <- oplsda_components
+  data_oplsda[[2]]    <- oplsda_vip
+  data_oplsda[[3]]    <- p1
+  return(data_oplsda)
+}
+set.seed(123456) 
+data_oplsda <- oplsda_function(data_multi, scaling = "pareto", n_perm = 200, n_crossval = 9, vip_thresh = 1.5)
+```
+
+
+### variance importance in projection (plotting)
+
+``` r
+vipplot <- ggplot(data_oplsda[[2]] %>% 
+                  filter(VIP_sig == "+"), aes(x = VIP, y= Compound, fill = Regulation)) +
+geom_point(size = 3.5, shape = 21) +
+theme_bw()+
+scale_fill_manual(values = c("firebrick3", "#0072B2"))+
+theme(panel.border = element_rect(size = 1), panel.grid.major = element_line(), panel.grid.minor = element_blank(), panel.background = element_blank(),
+                            axis.text.x = element_text(colour = "black", size = 10),
+                            axis.title.x = element_text(size= 10),
+                            axis.title.y = element_blank(),
+                            axis.text.y = element_text(size = 10, colour = "black"))+
+xlab("VIP score")+
+ggtitle("VIP plot") +
+theme(plot.title = element_blank()) +
+theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), 
+      legend.title = element_blank(), 
+      legend.text = element_text(size = 10))
+```
+
+### volcano plot highlighting compounds with a large VIP scores
+
+``` r
+volcanoplot <- ggplot(data_oplsda[[2]], mapping = aes(x = l2fc, y = t.test_p.val, fill=Regulation, label = Compound, alpha = Regulation))+
+geom_point(aes(shape =Regulation, size = Regulation))+
+scale_shape_manual(values = c (n.s. = 16, downregulated =21, upregulated =21))+
+scale_y_reverse(breaks = c(1,0.85,0.70,0.55,0.40,0.25,0.15, 0.05), limits = c(1, 0))+
+scale_size_manual(values=c (n.s. = 2, downregulated =2, upregulated =2))+
+scale_fill_manual(values=c(n.s. = "#4a4949", downregulated = "firebrick3", upregulated = "#0072B2"))+
+scale_alpha_manual(values= c(n.s. = 0.7, "Downregulated"= 1, "Upregulated"= 1))+
+geom_text_repel(
+  data = subset(data_oplsda[[2]], Regulation != "n.s."),
+  aes(label = Compound),
+  size = 2.2,
+  color = "black",
+  box.padding = unit(0.40, "lines"),
+  point.padding = unit(0.40, "lines"),
+  max.overlaps = Inf,
+  alpha = 1
+  )+
+theme_bw()+
+theme(panel.border = element_rect(size = 1), panel.grid.major = element_line(), panel.grid.minor = element_blank(), panel.background = element_blank(),
+                            axis.text.x = element_text(colour = "black", size = 10),
+                            axis.title.x = element_text(size= 10),
+                            axis.title.y =element_text(colour = "black", size = 10),
+                            axis.text.y = element_text(size = 10, colour = "black"))+
+xlab("log2 fold change (MIDY/WT)")+
+ylab("P-value")+
+                      theme(plot.title = element_blank()) +
+                      theme(legend.position = "top", 
+                            legend.box.spacing = unit(0.5, 'mm'), 
+                            legend.title = element_blank(), 
+                            legend.text = element_text(size = 10))+
+scale_x_continuous(breaks = c(-1,0,1), limits = c(-1.8, 1.8))
+```
+
+### Orthogonal Projections to Latent Structures Discriminant Analysis (OPLS-DA) (plotting)
+
+``` r
+oplsdaplot <- ggplot(data=data_oplsda[[1]], aes(x=p1, y=o1, label=Bioreplicate, fill = Condition))+
+geom_point(size = 3.5, shape =21)+
+scale_fill_manual(values=c(MIDY = "firebrick3", WT = "#0072B2"))+
+geom_text_repel(colour="black", size = 3.5, box.padding = 0.3)+
+xlab(paste("OPLS-DA axis 1 - ", data_oplsda[[3]], "%", sep=""))+
+ylab("OPLS-DA axis 2")+
+geom_hline(yintercept = 0, linetype = "dashed")+
+geom_vline(xintercept = 0, linetype = "dashed")+
+theme_bw() + 
+  theme(panel.border = element_rect(size = 1),
+                   axis.title = element_text(size = 10, colour="black"), 
+                   axis.text.x = element_text(size=10, colour="black"), 
+                   axis.text.y = element_text(size = 10, colour="black"),
+panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
+theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), 
+      legend.title = element_blank(), 
+      legend.text = element_text(size = 10))
+```
+
+# combine plots
+
+``` r
+# row 1
+P1 <- ggarrange(pcaplot, oplsdaplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
+          labels = c("A", "B"), 
+          ncol = 2, nrow = 1,  legend = "bottom",
+          common.legend = T)
+# row 2
+P2 <- ggarrange(vipplot, volcanoplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
+          labels = c("C", "D"),
+          ncol = 2, nrow = 1,  legend = "bottom",
+          common.legend = T)
+# combine all and save
+ggarrange(P1,P2, 
+          ncol = 1, nrow = 2, widths = c(6.8, 6.8), heights = c(6.8, 6.8))
+```
+
+``` r
+ggsave("lipidomics.svg", height = 6.8, width = 6.8)
+```
+
+# save
+
+``` r
+save.image()
+```
