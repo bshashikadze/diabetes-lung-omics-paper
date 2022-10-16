@@ -16,14 +16,6 @@ Each dataset must be:
 library     (tidyverse) 
 library       (ggrepel)
 library      (omicade4) 
-```
-
-    ## Warning: multiple methods tables found for 'aperm'
-
-    ## Warning: replacing previous import 'BiocGenerics::aperm' by
-    ## 'DelayedArray::aperm' when loading 'SummarizedExperiment'
-
-``` r
 library(MetabolAnalyze)
 library        (ggpubr)
 ```
@@ -34,7 +26,6 @@ library        (ggpubr)
 dir.create("input")
 ```
 
-    ## Warning in dir.create("input"): 'input' already exists
 
 ``` r
 # proteomics
