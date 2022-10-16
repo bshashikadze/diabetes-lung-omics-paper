@@ -1,6 +1,6 @@
 DIA proteomics (from DIA-NN) analysis with an MS-EmpiRe
 ================
-B. Shashikadze
+BS
 09/10/2022
 
 initially directory should only contain the main output of DIA-NN and
