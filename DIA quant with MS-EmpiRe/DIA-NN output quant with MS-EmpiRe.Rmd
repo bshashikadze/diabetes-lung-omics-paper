@@ -1,6 +1,6 @@
 ---
 title:  "DIA proteomics (from DIA-NN) analysis with an MS-EmpiRe"
-author: "B. Shashikadze"
+author: "BS"
 date:   "09/10/2022"
 output: github_document
 ---
