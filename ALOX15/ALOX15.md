@@ -14,82 +14,42 @@ library     (boot)
 ### data
 
 ``` r
-Variable        <- c("MIDY737", "MIDY739",  "MIDY740", "MIDY744", "WT736", "WT738",  "WT741",  "WT743",  "WT745") 
-ALOX15          <- c(22.2638, 22.018, 21.868, 22.2414, 22.6936, 23.6587, 23.883, 23.684, 22.9326)                
+Animal        <- c("MIDY737", "MIDY739",  "MIDY740", "MIDY744", "WT736", "WT738",  "WT741",  "WT743",  "WT745") 
 IHC_without_air <- c(0.011437962, 0.017072698, 0.013136247, 0.011739773,                                          
                      0.01397391, 0.039885123, 0.029064475, 0.023870968, 0.020428169)
 group           <- c(rep("MIDY", 4), rep("WT", 5))
 
 # combined data
-data <- data.frame(Variable, ALOX15, IHC_without_air, group)
-rm(Variable, ALOX15, IHC_without_air, group)
+data <- data.frame(Animal, IHC_without_air, group)
+rm(Animal, IHC_without_air, group)
 ```
 
-### plot boxplot for ALOX15 (LC-MS/MS)
+### plot boxplot for ALOX15
 
 ``` r
-boxplot <- ggplot(data, aes(x=reorder(group,-ALOX15), y=ALOX15))+
+boxplot_IHC <- ggplot(data, aes(x=reorder(group,-IHC_without_air), y=100*IHC_without_air))+
            geom_boxplot(fill = "#f0f8ff", color = "black", 
                         outlier.fill = NULL, lwd=0.3,
                         width=0.7/length(unique(data$group)))+
   scale_fill_manual(values=c(WT = "#0072B2", MIDY = "firebrick3"))+
   theme_bw()+
-  theme(plot.margin = margin(3,1,5,3, "mm"))+
-  geom_point(size = 3.1, shape = 21, aes(fill = group)) +
-  ylab("ALOX15 intensity (log2)")+
-  xlab("")+
-  scale_y_continuous(limits = c(21,24), breaks = c(21,22,23,24))+
-  theme(panel.border = element_rect(size = 1), 
-        axis.text = element_text(size=10, color = "black"),     
-        axis.title.x = element_text(size = 10), 
-        axis.title.y = element_text(size = 10), panel.grid =   element_blank())+
-  stat_compare_means(label.x = 2, aes(label = paste0("p = ", ..p.format..)),
-                     method = "wilcox.test", size = 3.5, vjust = 1)+
-theme(legend.position = "bottom", 
-        legend.box.spacing = unit(0.8, 'mm'), 
-        legend.title = element_blank(), 
-        legend.text = element_text(size = 8))+
-  theme(strip.text.x = element_text(size = 7), strip.background = element_blank(),legend.margin=margin(0,0,0,0), legend.box.margin=margin(-12,-12,-3,-12))
-```
-
-### plot boxplot for ALOX15 (IHC)
-
-``` r
-boxplot_IHC <- ggplot(data, aes(x=reorder(group,-ALOX15), y=100*IHC_without_air))+
-           geom_boxplot(fill = "#f0f8ff", color = "black", 
-                        outlier.fill = NULL, lwd=0.3,
-                        width=0.7/length(unique(data$group)))+
-  scale_fill_manual(values=c(WT = "#0072B2", MIDY = "firebrick3"))+
-  theme_bw()+
-  theme(plot.margin = margin(3,1,5,3, "mm"))+
-  geom_point(size = 3.1, shape = 21, aes(fill = group)) +
+  theme(plot.margin = margin(-1,-1,-1,-1, "mm"))+
+  geom_point(size = 2.2, shape = 21, aes(fill = group)) +
   scale_y_continuous(limits = c(1,4), breaks = c(1,2,3,4))+
   ylab(expression(V["v(ALOX15-positive cells/lung)"]))+
   xlab("")+
-  theme(panel.border = element_rect(size = 1), 
+  theme(panel.border = element_rect(size = 0.5), 
         axis.text = element_text(size=10, color = "black"),     
         axis.title.x = element_text(size = 10), 
         axis.title.y = element_text(size = 10), panel.grid =   element_blank())+
   stat_compare_means(label.x = 2, aes(label = paste0("p = ", ..p.format..)),
                      method = "wilcox.test", size = 3.5, vjust = 1)+
-theme(legend.position = "bottom", 
-        legend.box.spacing = unit(0.8, 'mm'), 
+theme(legend.position = "none", 
+        legend.box.spacing = unit(0.4, 'mm'), 
         legend.title = element_blank(), 
         legend.text = element_text(size = 8))+
   theme(strip.text.x = element_text(size = 7), strip.background = element_blank(),legend.margin=margin(0,0,0,0), legend.box.margin=margin(-12,-12,-3,-12))
+ggsave("IHC_ALOX15.svg", width = 2.5, height = 2.5)
 ```
 
-### merge plots
-
-``` r
-ggarrange(boxplot, boxplot_IHC, widths = c(3.4, 3.4), heights = c(3.4,3.4),
-          labels = c("A", "B"), 
-          ncol = 2, nrow = 1,  legend = "bottom",
-          common.legend = T)
-```
-
-![](ALOX15_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
-
-``` r
-ggsave("ALOX15.svg", height = 3.4, width = 6.8)
-```
+\`
