@@ -93,7 +93,7 @@ msempire_calculation(msempire_data, fc_threshold = 1.5)
     ##     2 - msempire_results_tidy:    this is the results that has been cleaned-up and can be used in suppl tables
     ##     3 - msempire_results_volcano: some columns was adjusted to make it suitable for the volcano plot
 
-### adding extra information to outputs (optional, for more information only)
+### adding extra information to outputs (optional)
 
 ``` r
 # get unique protein descriptions (distinct protein names for the same genes will be aggregated in one row separated by semicolon)

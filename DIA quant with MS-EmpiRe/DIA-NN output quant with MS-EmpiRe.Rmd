@@ -72,7 +72,7 @@ msempire_data <- pepquantify::pepquantify_funs(data_raw, condition1 = "MIDY", co
 msempire_calculation(msempire_data, fc_threshold = 1.5)
 ```
 
-### adding extra information to outputs (optional, for more information only)
+### adding extra information to outputs (optional)
 ```{r}
 # get unique protein descriptions (distinct protein names for the same genes will be aggregated in one row separated by semicolon)
 protein_description <- raw_diann_filtered %>% 
