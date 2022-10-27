@@ -9,14 +9,6 @@ B.Shashikadze
 library(tidyverse) 
 library(ggrepel)  
 library(ropls)    
-```
-
-    ## Warning: multiple methods tables found for 'aperm'
-
-    ## Warning: replacing previous import 'BiocGenerics::aperm' by
-    ## 'DelayedArray::aperm' when loading 'SummarizedExperiment'
-
-``` r
 library(ggpubr)
 ```
 
@@ -358,5 +350,10 @@ ggsave("lipidomics.svg", height = 6.8, width = 6.8)
 # save
 
 ``` r
+lipidomics_stat <- data_oplsda[[2]] %>% 
+  arrange(desc(VIP)) %>% 
+  select(1:4) %>% 
+  write.table("lipidomics_stat.txt", sep = "\t", row.names = F, quote = F)
+
 save.image()
 ```
