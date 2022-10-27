@@ -9,10 +9,6 @@ B.Shashikadze
 library(tidyverse) 
 library(ggrepel)  
 library(ropls)    
-```
-
-
-``` r
 library(ggpubr)
 ```
 
@@ -44,7 +40,6 @@ Groups <- data.frame(Bioreplicate, Condition)
 write.table(Groups, "conditions.txt", row.names = F, quote = F, sep = "\t")
 cat("conditions file was generated rename the file as Groups_modified, and modify the second column according to groups")
 ```
-
 
 ### read modified Groups file
 
@@ -128,7 +123,6 @@ statistic_function <- function(data, conditions_data, condition, parametric = TR
 statistics_data <- statistic_function(data_raw, Groups, condition = "Condition", parametric = TRUE, first_group = "MIDY", padjmethod = "none", id_name = "Compound", values_log = F)
 ```
 
-
 ## multivariate analysis
 
 ### prepare data for the multivariate analysis
@@ -163,7 +157,6 @@ pca_function <- function(data) {
 }
 data_pca <- pca_function(data_multi)
 ```
-
 
 ### principal component analysis (plotting)
 
@@ -221,7 +214,6 @@ oplsda_function <- function (data, scaling = "pareto", n_perm = 200,
 set.seed(123456) 
 data_oplsda <- oplsda_function(data_multi, scaling = "pareto", n_perm = 200, n_crossval = 9, vip_thresh = 1.5)
 ```
-
 
 ### variance importance in projection (plotting)
 
@@ -320,6 +312,7 @@ ggarrange(P1,P2,
           ncol = 1, nrow = 2, widths = c(6.8, 6.8), heights = c(6.8, 6.8))
 ```
 
+
 ``` r
 ggsave("lipidomics.svg", height = 6.8, width = 6.8)
 ```
@@ -327,5 +320,10 @@ ggsave("lipidomics.svg", height = 6.8, width = 6.8)
 # save
 
 ``` r
+lipidomics_stat <- data_oplsda[[2]] %>% 
+  arrange(desc(VIP)) %>% 
+  select(1:4) %>% 
+  write.table("lipidomics_stat.txt", sep = "\t", row.names = F, quote = F)
+
 save.image()
 ```
