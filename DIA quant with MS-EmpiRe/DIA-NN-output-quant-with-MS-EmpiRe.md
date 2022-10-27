@@ -37,7 +37,7 @@ contaminant.names       <- getName(contamintants)
 raw_diann_filtered      <- raw_diann %>% 
   filter(!str_detect(Protein.Group, str_c(contaminant.names, collapse="|")))
 
-# overwrite original file with contaminats filtered file
+# overwrite original file with contaminants filtered file
 write.table(raw_diann_filtered, "MIDY_Lung_DIA.tsv", quote = F, sep = "\t", row.names = F)
 ```
 
@@ -78,4 +78,58 @@ msempire_data <- pepquantify::pepquantify_funs(data_raw, condition1 = "MIDY", co
 
 ``` r
 msempire_calculation(msempire_data, fc_threshold = 1.5)
+```
+
+    ## [1] "final error: 0.762124"
+    ## [1] "final error: 0.76472"
+    ## [1] 0.7621244
+    ## [1] 0.7647205
+    ## [1] "detecting mode"
+    ## [1] "mode: -0.2"
+    ## [1] "Final error: 0.760565"
+    ## [1] "numeric" "numeric" "numeric" "numeric" "numeric" "numeric"
+    ## three files were saved in the working directory:
+    ##     1 - msempire_results_raw:     this is the raw results of MS-EmpiRe
+    ##     2 - msempire_results_tidy:    this is the results that has been cleaned-up and can be used in suppl tables
+    ##     3 - msempire_results_volcano: some columns was adjusted to make it suitable for the volcano plot
+
+### adding extra information to outputs (optional, for more information only)
+
+``` r
+# get unique protein descriptions (distinct protein names for the same genes will be aggregated in one row separated by semicolon)
+protein_description <- raw_diann_filtered %>% 
+  select(Genes, First.Protein.Description) %>% 
+  distinct(Genes, First.Protein.Description, .keep_all = T) %>% 
+  group_by(Genes) %>% 
+  summarize(First.Protein.Description=paste(First.Protein.Description,collapse=";")) %>% 
+  ungroup
+
+
+# get unique protein descriptions (distinct protein names for the same genes will be aggregated in one row separated by semicolon)
+protein_group <- raw_diann_filtered %>% 
+  select(Genes, Protein.Group) %>% 
+  distinct(Genes, Protein.Group, .keep_all = T) %>% 
+  group_by(Genes) %>% 
+  summarize(Protein.Group=paste(Protein.Group,collapse=";")) %>% 
+  ungroup
+
+combined_additional <- protein_description %>% 
+  left_join(protein_group)
+```
+
+    ## Joining, by = "Genes"
+
+``` r
+# match this information to outputs and save for the supplementary tables
+proteingroups <- read.delim("proteingroups.txt", sep = "\t", header = T) %>% 
+  left_join(combined_additional) %>% 
+  write.table("proteingroups_modified.txt", sep = "\t", quote = F, row.names = F)
+```
+
+    ## Joining, by = "Genes"
+
+``` r
+msempire      <- read.delim("MIDY_vs_WT/msempire_results_tidy.txt", sep = "\t", header = T) %>% 
+  left_join(combined_additional, by =c("accession"="Genes")) %>% 
+  write.table("MIDY_vs_WT/msempire_results_tidy_modified.txt", sep = "\t", quote = F, row.names = F)
 ```
