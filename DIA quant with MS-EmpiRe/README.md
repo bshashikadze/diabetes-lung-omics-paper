@@ -67,9 +67,6 @@ pepquantify::resultstidy(data, data2,  fc_threshold = fc_threshold)}
 data_raw <- pepquantify::read_diann(experimental_library = T)
 ```
 
-    ## conditions file was generated. First rename file as: conditions_modified.txt. afterwards,
-    ##          modify ONLY the second column according to the experimental conditions. Do not change the column headers
-
 ``` r
 msempire_data <- pepquantify::pepquantify_funs(data_raw, condition1 = "MIDY", condition2 = "WT", imputation = TRUE)
 ```
