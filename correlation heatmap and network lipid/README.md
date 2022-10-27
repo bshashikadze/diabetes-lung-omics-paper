@@ -72,8 +72,6 @@ cat("Groups file was generated, rename the file as Groups_modified,
     and modify the second column according to experimental condition")
 ```
 
-    ## Groups file was generated, rename the file as Groups_modified, 
-    ##     and modify the second column according to experimental condition
 
 ### prepare data for the correlation analysis
 
@@ -99,7 +97,7 @@ data_for_corr <- multivariate_prep_function(data_raw)
 corr_function <- function(data, corr_method = "spearman", padjmethod = "BH", adjusted = T) 
   
    {
-   correlations <- psych::corr.test(data_for_corr, method=corr_method, 
+   correlations <- psych::corr.test(data, method=corr_method, 
                                     adjust=padjmethod, 
                                     alpha=.05,ci=F,
                                     minlength=5,
@@ -145,8 +143,13 @@ corr_function <- function(data, corr_method = "spearman", padjmethod = "BH", adj
 data_corr <- corr_function(data_for_corr, corr_method = "spearman", adjusted = T, padjmethod = "BH")
 ```
 
-    ## this function returned a list of 3. The first element contains  spearman correlation coeficients,
-    ##              the second element contains raw p-values in lower, and BH adjusted p-values in an upper triangle, and the third element contains adjusted p-values only
+
+``` r
+# save correlation matrix
+data_corr[[1]] %>% 
+  rownames_to_column("Compound") %>% 
+write.table("correlations.txt", sep = "\t", row.names = F, quote = F)
+```
 
 ## hierarchical clustering of the correlation matrix
 
@@ -214,8 +217,6 @@ hmap <- Heatmap(as.matrix(data_corr[[1]]),
 
 ht <- draw(hmap)
 ```
-
-![](lipidomics_correlation_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 #calculate actual plot size
@@ -357,9 +358,6 @@ extract_features_function <- function(data, n_clust = 3, start_n = 1, end_n =12)
 subset_data  <- extract_features_function(km_clust)
 ```
 
-    ## this function returned a list of 5. the first element is annotation information. The second element is correlation coefficients, the 
-    ##         third element is adjusted p-values, the fourth element is adjusted p values replaced with starts, 
-    ##         the fifth element is quantitative data
 
 ### plot heatmap for interesting correlations
 
@@ -416,8 +414,6 @@ h2 = ComplexHeatmap:::height(ht_subs )
 h2 = convertY(h2, "inch", valueOnly = TRUE)
 c(w2, h2)
 ```
-
-    ## [1] 2.900884 2.909624
 
 ``` r
 # save
@@ -516,12 +512,6 @@ corr_netw_function <- function(r_threshold = 0.8, padj_threshold = 0.05)
 data_corr_netw <- corr_netw_function()
 ```
 
-    ## Joining, by = "Compound"
-    ## Joining, by = c("x", "y")
-
-    ## this function returned a list of 4. the first is pairwise correlations filtered for an absolute correlation coefficient more 
-    ##                than  0.8 the second element is annotation information for the compounds, the third and the fourth elements                are similar to the first and the second but fot the subset which was futher filtered to keep the correlations with a 
-    ##                significance less than  0.05
 
 ``` r
 corr_netw_forggplot_function <- function(data, community_detection = TRUE, community_detection_alg = cluster_walktrap, netw_layout = "fr")  
@@ -599,9 +589,6 @@ corr_netw_forggplot_function <- function(data, community_detection = TRUE, commu
 corr_plot_ggplot <- corr_netw_forggplot_function(data_corr_netw[[1]], community_detection = T)
 ```
 
-    ## Joining, by = "Compound"
-    ## Joining, by = "Compound"
-    ## Joining, by = "Compound"
 
 ``` r
 netwenzyme <- ggplot(mapping = aes(x=x,y=y)) +
@@ -629,8 +616,6 @@ netwenzyme <- ggplot(mapping = aes(x=x,y=y)) +
   theme(plot.margin = margin(1,1,1,1, "mm"))+
   theme(legend.position = "bottom", legend.text = element_text(size = 8), legend.title = element_blank()) 
 ```
-
-    ## Warning: Duplicated aesthetics after name standardisation: size
 
 ``` r
 ggsave("netwenzyme.svg", width = 2.5, height = 2.5)
@@ -663,7 +648,6 @@ netwsubstrate <- ggplot(mapping = aes(x=x,y=y)) +
   theme(legend.position = "bottom", legend.text = element_text(size = 8), legend.title = element_blank()) 
 ```
 
-    ## Warning: Duplicated aesthetics after name standardisation: size
 
 ``` r
 ggsave("netwsubstrate.svg", width = 2.5, height = 2.5)
@@ -673,8 +657,6 @@ ggsave("netwsubstrate.svg", width = 2.5, height = 2.5)
 corr_plot_ggplot_subs <- corr_netw_forggplot_function(data_corr_netw[[3]], community_detection = F, netw_layout = "stress")
 ```
 
-    ## Joining, by = "Compound"
-    ## Joining, by = "Compound"
 
 ``` r
 netwenzyme_subset <- ggplot(mapping = aes(x=x,y=y)) +
