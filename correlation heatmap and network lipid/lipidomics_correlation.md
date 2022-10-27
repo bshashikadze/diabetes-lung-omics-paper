@@ -99,7 +99,7 @@ data_for_corr <- multivariate_prep_function(data_raw)
 corr_function <- function(data, corr_method = "spearman", padjmethod = "BH", adjusted = T) 
   
    {
-   correlations <- psych::corr.test(data_for_corr, method=corr_method, 
+   correlations <- psych::corr.test(data, method=corr_method, 
                                     adjust=padjmethod, 
                                     alpha=.05,ci=F,
                                     minlength=5,
@@ -147,6 +147,13 @@ data_corr <- corr_function(data_for_corr, corr_method = "spearman", adjusted = T
 
     ## this function returned a list of 3. The first element contains  spearman correlation coeficients,
     ##              the second element contains raw p-values in lower, and BH adjusted p-values in an upper triangle, and the third element contains adjusted p-values only
+
+``` r
+# save correlation matrix
+data_corr[[1]] %>% 
+  rownames_to_column("Compound") %>% 
+write.table("correlations.txt", sep = "\t", row.names = F, quote = F)
+```
 
 ## hierarchical clustering of the correlation matrix
 
