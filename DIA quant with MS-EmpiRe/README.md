@@ -37,7 +37,7 @@ contaminant.names       <- getName(contamintants)
 raw_diann_filtered      <- raw_diann %>% 
   filter(!str_detect(Protein.Group, str_c(contaminant.names, collapse="|")))
 
-# overwrite original file with contaminats filtered file
+# overwrite original file with contaminants filtered file
 write.table(raw_diann_filtered, "MIDY_Lung_DIA.tsv", quote = F, sep = "\t", row.names = F)
 ```
 
@@ -67,11 +67,51 @@ pepquantify::resultstidy(data, data2,  fc_threshold = fc_threshold)}
 data_raw <- pepquantify::read_diann(experimental_library = T)
 ```
 
+    ## conditions file was generated. First rename file as: conditions_modified.txt. afterwards,
+    ##          modify ONLY the second column according to the experimental conditions. Do not change the column headers
+
 ``` r
 msempire_data <- pepquantify::pepquantify_funs(data_raw, condition1 = "MIDY", condition2 = "WT", imputation = TRUE)
 ```
 
-
 ``` r
 msempire_calculation(msempire_data, fc_threshold = 1.5)
+```
+
+### adding extra information to outputs (optional)
+
+``` r
+# get unique protein descriptions (distinct protein names for the same genes will be aggregated in one row separated by semicolon)
+protein_description <- raw_diann_filtered %>% 
+  select(Genes, First.Protein.Description) %>% 
+  distinct(Genes, First.Protein.Description, .keep_all = T) %>% 
+  group_by(Genes) %>% 
+  summarize(First.Protein.Description=paste(First.Protein.Description,collapse=";")) %>% 
+  ungroup
+
+
+# get unique protein descriptions (distinct protein names for the same genes will be aggregated in one row separated by semicolon)
+protein_group <- raw_diann_filtered %>% 
+  select(Genes, Protein.Group) %>% 
+  distinct(Genes, Protein.Group, .keep_all = T) %>% 
+  group_by(Genes) %>% 
+  summarize(Protein.Group=paste(Protein.Group,collapse=";")) %>% 
+  ungroup
+
+combined_additional <- protein_description %>% 
+  left_join(protein_group)
+```
+
+``` r
+# match this information to outputs and save for the supplementary tables
+proteingroups <- read.delim("proteingroups.txt", sep = "\t", header = T) %>% 
+  left_join(combined_additional) %>% 
+  write.table("proteingroups_modified.txt", sep = "\t", quote = F, row.names = F)
+```
+
+
+``` r
+msempire      <- read.delim("MIDY_vs_WT/msempire_results_tidy.txt", sep = "\t", header = T) %>% 
+  left_join(combined_additional, by =c("accession"="Genes")) %>% 
+  write.table("MIDY_vs_WT/msempire_results_tidy_modified.txt", sep = "\t", quote = F, row.names = F)
 ```
