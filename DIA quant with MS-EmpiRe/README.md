@@ -3,6 +3,8 @@ DIA proteomics (from DIA-NN) analysis with an MS-EmpiRe
 BS
 09/10/2022
 
+dataset can be downloaded from ProteomeExchange repository (Porcine_Lung_GPF_library should be named as "MIDY_Lung_DIA.tsv" as it was used in this script)  
+
 initially directory should only contain the main output of DIA-NN and
 contaminats fasta file from MaxQuant (latter only necessary if it was
 used during DIA-NN search)
@@ -19,7 +21,7 @@ library      (tidyverse)   # data manipulation
 library      (pepquantify) # prepare data for MS-EmpiRe analysis
 ```
 
-### read the main output of DIA-NN (can be downloaded from ProteomeXchange repository)
+### read the main output of DIA-NN
 
 implicit reading is necessary only if any modifications other than
 supported by pepquantify package is necessary, e.g. filtering for
