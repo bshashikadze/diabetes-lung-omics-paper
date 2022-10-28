@@ -264,7 +264,8 @@ corr_matrix    <- corr_matrix[compound_order$Compound]
 write.table(corr_matrix, "correlations.txt", sep = "\t", row.names = F, quote = F)
 ```
 
-####plot legends separatelly this is a current work-around to get a
+#### plot legends separatelly 
+this is a current work-around to get a
 desired arrangement of the legends as in the figure.
 
 ``` r
