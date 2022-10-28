@@ -3,7 +3,7 @@ statistics and bioinformatics proteomics
 BS
 10/10/2022
 
-msempire_results_tidy_volcano.txt is an output of (DIA quant with MS-EmpiRe)[https://github.com/bshashikadze/diabetes-lung-omics-paper/tree/main/DIA%20quant%20with%20MS-EmpiRe]
+msempire_results_tidy_volcano.txt is an output of [DIA quant with MS-EmpiRe](https://github.com/bshashikadze/diabetes-lung-omics-paper/tree/main/DIA%20quant%20with%20MS-EmpiRe)
 
 ### load libraries
 
