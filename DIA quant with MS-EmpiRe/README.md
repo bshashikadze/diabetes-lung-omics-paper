@@ -19,7 +19,7 @@ library      (tidyverse)   # data manipulation
 library      (pepquantify) # prepare data for MS-EmpiRe analysis
 ```
 
-### read the main output of DIA-NN
+### read the main output of DIA-NN (can be downloaded from ProteomeXchange repository)
 
 implicit reading is necessary only if any modifications other than
 supported by pepquantify package is necessary, e.g. filtering for
