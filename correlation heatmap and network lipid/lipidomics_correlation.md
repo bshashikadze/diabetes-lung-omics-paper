@@ -148,13 +148,6 @@ data_corr <- corr_function(data_for_corr, corr_method = "spearman", adjusted = T
     ## this function returned a list of 3. The first element contains  spearman correlation coeficients,
     ##              the second element contains raw p-values in lower, and BH adjusted p-values in an upper triangle, and the third element contains adjusted p-values only
 
-``` r
-# save correlation matrix
-data_corr[[1]] %>% 
-  rownames_to_column("Compound") %>% 
-write.table("correlations.txt", sep = "\t", row.names = F, quote = F)
-```
-
 ## hierarchical clustering of the correlation matrix
 
 ### heatmap including all correlations
@@ -243,6 +236,37 @@ ht           <- draw(hmap)
 
 #for cowplot
 gb_Hmap = grid.grabExpr(draw(hmap))
+```
+
+### save correlation matrix as it is on the heatmap
+
+``` r
+# correlation matrix
+corr_matrix <- data_corr[[1]] %>% 
+  rownames_to_column("Compound") 
+
+# get the row order (it is not necessary to get the column_order in this case as it is the same as row order)
+roworder_ht <- row_order(ht) %>% 
+unlist()
+
+# order the lipids
+compound_order <- corr_matrix %>% 
+  select(Compound) %>% 
+  mutate(order = seq_along(1:length(roworder_ht))) %>% 
+  arrange(factor(order, levels = roworder_ht)) %>% 
+  select(-order)
+
+# arrange rows of the corr matrix
+corr_matrix <- corr_matrix %>% 
+arrange(factor(Compound, levels = compound_order$Compound))
+
+# arrange columns
+Compound       <- "Compound"
+compound_order <- rbind(Compound, compound_order)
+corr_matrix    <- corr_matrix[compound_order$Compound]
+
+# save correlation matrix
+write.table(corr_matrix, "correlations.txt", sep = "\t", row.names = F, quote = F)
 ```
 
 \####plot legends separatelly this is a current work-around to get a
@@ -602,7 +626,7 @@ corr_netw_forggplot_function <- function(data, community_detection = TRUE, commu
 }
 
 
-
+set.seed(34578)
 corr_plot_ggplot <- corr_netw_forggplot_function(data_corr_netw[[1]], community_detection = T)
 ```
 
@@ -620,7 +644,7 @@ netwenzyme <- ggplot(mapping = aes(x=x,y=y)) +
                                                            radius = unit(2.5, "mm"),
                                                            alpha  = 0.5,
                                                            lwd = 0.5, show.legend = F) +
-                                        scale_fill_brewer(palette = "Paired") + 
+                                        scale_fill_brewer(palette   = "Paired") + 
                                         scale_colour_brewer(palette = "Paired") + 
   
   new_scale_color()+
