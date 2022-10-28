@@ -3,6 +3,9 @@ Multi-omics data integration with Co-inertia analysis
 BS
 16/10/2022
 
+
+datasets are available in the supplementary tables of the manuscript
+
 Each dataset must be:
 
 1.  normal wide-table format with compound names as rows (first column
