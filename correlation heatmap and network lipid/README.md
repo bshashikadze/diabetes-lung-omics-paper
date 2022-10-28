@@ -143,8 +143,6 @@ corr_function <- function(data, corr_method = "spearman", padjmethod = "BH", adj
 data_corr <- corr_function(data_for_corr, corr_method = "spearman", adjusted = T, padjmethod = "BH")
 ```
 
-    ## this function returned a list of 3. The first element contains  spearman correlation coeficients,
-    ##              the second element contains raw p-values in lower, and BH adjusted p-values in an upper triangle, and the third element contains adjusted p-values only
 
 ## hierarchical clustering of the correlation matrix
 
