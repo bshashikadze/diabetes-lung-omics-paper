@@ -3,6 +3,9 @@ Multi (uni-) variate analysis of lipidomics data
 B.Shashikadze
 21/08/2022
 
+datasets are available in the supplementary tables of the manuscript
+
+
 ### load libraries
 
 ``` r
