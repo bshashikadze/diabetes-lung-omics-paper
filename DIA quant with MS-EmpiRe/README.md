@@ -3,7 +3,7 @@ DIA proteomics (from DIA-NN) analysis with an MS-EmpiRe
 BS
 09/10/2022
 
-dataset can be downloaded from (ProteomeExchange)[http://www.proteomexchange.org/] repository (PXD038014)
+dataset can be downloaded from [ProteomeExchange](http://www.proteomexchange.org/) repository (PXD038014)
 
 initially directory should only contain the main output of DIA-NN and
 contaminats fasta file from MaxQuant (latter only necessary if it was
