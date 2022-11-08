@@ -22,7 +22,7 @@ library      (pepquantify) # prepare data for MS-EmpiRe analysis
 ### read the main output of DIA-NN
 implicit reading is necessary only if any modifications other than supported by pepquantify package is necessary, e.g. filtering for contaminats
 ```{r message=FALSE, warning=FALSE}
-raw_diann <- read.delim("MIDY_Lung_DIA.tsv", sep = "\t", header = T) 
+raw_diann <- read.delim("DIA-NN_output_precursors.tsv", sep = "\t", header = T) 
 ```
 
 

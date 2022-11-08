@@ -26,7 +26,7 @@ supported by pepquantify package is necessary, e.g. filtering for
 contaminats
 
 ``` r
-raw_diann <- read.delim("MIDY_Lung_DIA.tsv", sep = "\t", header = T) 
+raw_diann <- read.delim("DIA-NN_output_precursors.tsv", sep = "\t", header = T) 
 ```
 
 ### remove contaminants (contaminants fasta file from MaxQuant common contaminants)
@@ -80,13 +80,13 @@ msempire_data <- pepquantify::pepquantify_funs(data_raw, condition1 = "MIDY", co
 msempire_calculation(msempire_data, fc_threshold = 1.5)
 ```
 
-    ## [1] "final error: 0.762124"
-    ## [1] "final error: 0.76472"
-    ## [1] 0.7621244
-    ## [1] 0.7647205
+    ## [1] "final error: 0.762846"
+    ## [1] "final error: 0.765543"
+    ## [1] 0.7628458
+    ## [1] 0.7655433
     ## [1] "detecting mode"
     ## [1] "mode: -0.2"
-    ## [1] "Final error: 0.760565"
+    ## [1] "Final error: 0.761256"
     ## [1] "numeric" "numeric" "numeric" "numeric" "numeric" "numeric"
     ## three files were saved in the working directory:
     ##     1 - msempire_results_raw:     this is the raw results of MS-EmpiRe
