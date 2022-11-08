@@ -3,7 +3,7 @@ DIA proteomics (from DIA-NN) analysis with an MS-EmpiRe
 BS
 09/10/2022
 
-dataset can be downloaded from ProteomeExchange repository (Porcine_Lung_GPF_library should be named as "MIDY_Lung_DIA.tsv" as it was used in this script)  
+dataset can be downloaded from (ProteomeExchange)[http://www.proteomexchange.org/] repository (PXD038014)
 
 initially directory should only contain the main output of DIA-NN and
 contaminats fasta file from MaxQuant (latter only necessary if it was
@@ -28,7 +28,7 @@ supported by pepquantify package is necessary, e.g. filtering for
 contaminats
 
 ``` r
-raw_diann <- read.delim("MIDY_Lung_DIA.tsv", sep = "\t", header = T) 
+raw_diann <- read.delim("DIA-NN_output_precursors.tsv", sep = "\t", header = T) 
 ```
 
 ### remove contaminants (contaminants fasta file from MaxQuant common contaminants)
