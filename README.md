@@ -1,1 +1,1 @@
-#Reproducibility repo for Shashikadze et al. "Multi-omics profiling of lungs from genetically diabetic pigs reveals reduced ALOX15 levels and impaired eicosanoid switching as mechanisms contributing to a proinflammatory milieu ".
+# Reproducibility repo for Shashikadze et al. "Multi-omics profiling of lungs from genetically diabetic pigs reveals reduced ALOX15 levels and impaired eicosanoid switching as mechanisms contributing to a proinflammatory milieu".
