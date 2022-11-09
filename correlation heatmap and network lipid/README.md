@@ -3,7 +3,8 @@ Correlation analysis, visualization as heatmap and network
 BS
 16/10/2022
 
-datasets are available in the supplementary tables of the manuscript
+Lipidomics dataset is abailable in the supplementary tables of the manuscrript
+
 
 ### load libraries
 
@@ -33,21 +34,14 @@ compounds in the main data
 ``` r
 data_raw  <- read.delim("lipidomics_raw.txt", sep = "\t", header = T, check.names = F) %>% 
   filter(if_all(-contains("Compound"), ~ (.x >= 0))) 
-
 # class of each column
 sapply(data_raw, class)
 ```
-
-    ##    Compound     MIDY737     MIDY739     MIDY740     MIDY744       WT736 
-    ## "character" "character" "character" "character" "character" "character" 
-    ##       WT738       WT741       WT743       WT745 
-    ## "character" "character" "character" "character"
 
 ``` r
 # convert all but first column to numeric
 data_raw[ , 2:10] <- apply(data_raw[ , 2:10], 2,            
                     function(x) as.numeric(as.character(x)))
-
 # read annotation file
 annotation_all <- read.delim("annotation.txt", sep = "\t", row.names = "Compound", header = T, check.names = F)
 ```
@@ -56,8 +50,6 @@ annotation_all <- read.delim("annotation.txt", sep = "\t", row.names = "Compound
 
 ``` r
 order <- data_raw$Compound
-
-
 annotation_all <- annotation_all %>% 
   arrange(factor(rownames(annotation_all), levels = order)) 
 ```
@@ -85,7 +77,6 @@ multivariate_prep_function <- function(data){
           t() %>% 
           as.data.frame()
 }
-
 data_for_corr <- multivariate_prep_function(data_raw)
 ```
 
@@ -114,12 +105,10 @@ corr_function <- function(data, corr_method = "spearman", padjmethod = "BH", adj
    corrs_r     <- as.data.frame(correlations$r)
    cor_data[[1]]   <- corrs_r
    cor_data[[2]]   <- pvals
-
   
    if (adjusted == TRUE) {
    
    pvals[lower.tri(pvals)] <- NA
-
    #copy values from upper triangle to lower triangle *mirror* 
    for(i in 1:nrow(pvals)) {for(j in 1:i) {pvals[i,j]=pvals[j,i]}}
    cor_data[[3]] <- pvals
@@ -140,7 +129,6 @@ corr_function <- function(data, corr_method = "spearman", padjmethod = "BH", adj
      return(cor_data)}
       
    }
-
 #apply the function
 data_corr <- corr_function(data_for_corr, corr_method = "spearman", adjusted = T, padjmethod = "BH")
 ```
@@ -183,9 +171,6 @@ hmap_all_data[[4]] <- HeatmapAnnotation(df          = annotation_all,
                             col                     = hmap_all_data[[2]],
                             width                   = unit(0.8, "cm"),
                             simple_anno_size_adjust = TRUE)
-
-
-
 # plotting
 hmap <- Heatmap(as.matrix(data_corr[[1]]),
                 show_heatmap_legend        = F,
@@ -208,8 +193,6 @@ hmap <- Heatmap(as.matrix(data_corr[[1]]),
                 col                         = hmap_all_data[[1]], 
                 border                      = TRUE,
                 row_names_gp                = gpar(fontsize = 5)) 
-
-
 ht <- draw(hmap)
 ```
 
@@ -222,15 +205,13 @@ h1 = ComplexHeatmap:::height(ht)
 h1 = convertY(h1, "inch", valueOnly = TRUE)
 c(w1, h1)
 ```
-
-    ## [1] 3.907964 3.883703
+-
 
 ``` r
 #save
 heatmap_file <- paste0("Correlation_lipids_spearman_full", ".svg")
 svg(file = heatmap_file, width = w1, height = h1)
 ht           <- draw(hmap)
-
 #for cowplot
 gb_Hmap = grid.grabExpr(draw(hmap))
 ```
@@ -241,44 +222,34 @@ gb_Hmap = grid.grabExpr(draw(hmap))
 # correlation matrix
 corr_matrix <- data_corr[[1]] %>% 
   rownames_to_column("Compound") 
-
 # get the row order (it is not necessary to get the column_order in this case as it is the same as row order)
 roworder_ht <- row_order(ht) %>% 
 unlist()
-
 # order the lipids
 compound_order <- corr_matrix %>% 
   select(Compound) %>% 
   mutate(order = seq_along(1:length(roworder_ht))) %>% 
   arrange(factor(order, levels = roworder_ht)) %>% 
   select(-order)
-
 # arrange rows of the corr matrix
 corr_matrix <- corr_matrix %>% 
 arrange(factor(Compound, levels = compound_order$Compound))
-
 # arrange columns
 Compound       <- "Compound"
 compound_order <- rbind(Compound, compound_order)
 corr_matrix    <- corr_matrix[compound_order$Compound]
-
 # save correlation matrix
 write.table(corr_matrix, "correlations.txt", sep = "\t", row.names = F, quote = F)
 ```
 
-#### plot legends separatelly 
-this is a current work-around to get a
+\####plot legends separatelly this is a current work-around to get a
 desired arrangement of the legends as in the figure.
 
 ``` r
 cor_legend = grid.grabExpr(color_mapping_legend(hmap@matrix_color_mapping, plot = T, title = "Correlation", legend_direction = c("horizontal"), title_position = "topcenter", title_gp = gpar(fontsize = 7, fontface = "bold"),  labels_gp = gpar(fontsize = 7)))
-
 Substrate = grid.grabExpr(color_mapping_legend(hmap@top_annotation@anno_list[["Substrate"]]@color_mapping, plot = T, title_gp = gpar(fontsize = 7, fontface = "bold"),  labels_gp = gpar(fontsize = 7)))
-
 Enzyme = grid.grabExpr(scale = 1, color_mapping_legend(hmap@top_annotation@anno_list[["Enzyme"]]@color_mapping, plot = T, title_gp = gpar(fontsize = 7, fontface = "bold"),  labels_gp = gpar(fontsize = 7)))
-
 Regulation = grid.grabExpr(color_mapping_legend(hmap@top_annotation@anno_list[["Regulation"]]@color_mapping, plot = T, title_gp = gpar(fontsize = 7, fontface = "bold"),  labels_gp = gpar(fontsize = 7)))
-
 legend <- ggarrange(arrangeGrob(cor_legend, Regulation, ncol=1, heights = c(1,1)),
            Substrate, Enzyme, heights = c(1,1), widths =  c(1,1),
            ncol = 3) 
@@ -298,7 +269,6 @@ the heatmap.
 extract_features_function <- function(data, n_clust = 3, start_n = 1, end_n =12) 
   
   {
-
    #get an order of the rows in the main heatmap (row_order function)
    r_ord <- row_order(hmap)
    row_order_list = r_ord[[paste0(n_clust)]][start_n:end_n]
@@ -313,7 +283,6 @@ extract_features_function <- function(data, n_clust = 3, start_n = 1, end_n =12)
    rownames_to_column("row_order") %>% 
    filter(row_order %in% row_order_list) %>% 
     select(-row_order, -cluster_n)
-
    #extract subset compound names (will be used for the filtering)
    subs_names <- annotation_subset$Compound
   
@@ -380,8 +349,6 @@ extract_features_function <- function(data, n_clust = 3, start_n = 1, end_n =12)
    return(subs_data)
    
 }
-
-
 #apply the function
 subset_data  <- extract_features_function(km_clust)
 ```
@@ -398,7 +365,6 @@ hmap_subset_data[[1]] <- HeatmapAnnotation(df = column_to_rownames(subset_data[[
                             col = hmap_all_data[[2]],
                             height = unit(0.8, "cm"),
                             simple_anno_size_adjust = TRUE)
-
 hmap_subset_data[[2]] <- HeatmapAnnotation(df = column_to_rownames(subset_data[[1]], "Compound"), 
                             show_legend = F, 
                             which = 'row',
@@ -408,8 +374,6 @@ hmap_subset_data[[2]] <- HeatmapAnnotation(df = column_to_rownames(subset_data[[
                             col = hmap_all_data[[2]],
                             width = unit(0.6, "cm"),
                             simple_anno_size_adjust = TRUE)
-
-
 # plot
 hmap_subset <- Heatmap(as.matrix(subset_data[[2]]), 
                 show_heatmap_legend   = F,
@@ -434,23 +398,19 @@ hmap_subset <- Heatmap(as.matrix(subset_data[[2]]),
                 cell_fun = function(j, i, x, y, width, height, fill) {
                                    grid.text((subset_data[[4]][i, j]), x, y, 
                                              gp = gpar(fontsize = 5))})
-
 ht_subs <- draw(hmap_subset)
 w2 = ComplexHeatmap:::width(ht_subs)
 w2 = convertX(w2, "inch", valueOnly = TRUE)
 h2 = ComplexHeatmap:::height(ht_subs )
 h2 = convertY(h2, "inch", valueOnly = TRUE)
 c(w2, h2)
-```
 
-    ## [1] 2.900884 2.909624
 
 ``` r
 # save
 heatmap_file <- paste0("Correlation_lipids_spearman_subset", ".svg")
 svg(file = heatmap_file, width = w2, height = h2)
 ht_subs <- draw(hmap_subset)
-
 # for cowplot
 gb_hmap_subset = grid.grabExpr(draw(hmap_subset))
 ```
@@ -458,10 +418,12 @@ gb_hmap_subset = grid.grabExpr(draw(hmap_subset))
 ## boxplot of interesting features
 
 ``` r
+subset_data[[5]]$Condition <- factor(subset_data[[5]]$Condition, levels = c("WT", "MIDY"))
+
 boxplot <- ggplot(subset_data[[5]], aes(x=Condition, y=Concentration, fill = Condition))+
            geom_boxplot(color = "#888888", outlier.fill = NULL, lwd=0.3,
                         width=0.8/length(unique(subset_data[[5]]$Condition)))+
-  scale_fill_manual(values=c("firebrick3", "#0072B2"))+
+  scale_fill_manual(values=c("#0072B2", "firebrick3"))+
   theme_bw()+
   geom_point(size = 1.4, shape = 21, fill = "#888888") +
   ylab("Lipid concentration (ng/g tissue)")+
@@ -471,7 +433,7 @@ boxplot <- ggplot(subset_data[[5]], aes(x=Condition, y=Concentration, fill = Con
         axis.title.y = element_text(size = 9, colour = "black"), 
         panel.grid =   element_blank())+
   stat_compare_means(data = subset_data[[5]] %>% select(-Concentration) %>% mutate(Concentration = log2conc), 
-                     label.x = 0.7, aes(label = paste0("p = ", ..p.format..)), 
+                     label.x = 1.7, aes(label = paste0("p = ", ..p.format..)), 
                      method = "t.test", size = 2, vjust = 1)+
   facet_wrap(~Compound, scales = "free_y", ncol = 6)+
   theme(legend.position = "bottom", 
@@ -499,12 +461,10 @@ corr_netw_function <- function(r_threshold = 0.8, padj_threshold = 0.05)
      unique() %>% 
      rename(Compound = 1) %>% 
      left_join(annotation_all %>% rownames_to_column("Compound"))
-
      
      corr_data_netw <- list()
      corr_data_netw[[1]] <- cor_netw_r
      corr_data_netw[[2]] <- annot 
-
   if (exists("subset_data")) {
     
      cor_netw_r_subs <- subset_data[[2]] %>% 
@@ -535,13 +495,12 @@ corr_netw_function <- function(r_threshold = 0.8, padj_threshold = 0.05)
       return(corr_data_netw)}
       
   }
-
-
-
 #apply the function
 data_corr_netw <- corr_netw_function()
 ```
 
+
+### prepare data to plot the network with ggplot
 
 ``` r
 corr_netw_forggplot_function <- function(data, community_detection = TRUE, community_detection_alg = cluster_walktrap, netw_layout = "fr")  
@@ -565,7 +524,7 @@ corr_netw_forggplot_function <- function(data, community_detection = TRUE, commu
     left_join(deg)
   
   #extract edges
-  # according to the answer:https://stackoverflow.com/questions/63997659/get-edge-data-from-the-tidygraph-package
+  # according to the answer: https://stackoverflow.com/questions/63997659/get-edge-data-from-the-tidygraph-package
   df_edges <- corr.graph %>%
   activate(edges) %>%
   get.edgelist() %>%
@@ -615,24 +574,56 @@ corr_netw_forggplot_function <- function(data, community_detection = TRUE, commu
 }
 
 
-set.seed(34578)
-corr_plot_ggplot <- corr_netw_forggplot_function(data_corr_netw[[1]], community_detection = T)
+set.seed(8889)
+corr_plot_ggplot <- corr_netw_forggplot_function(data_corr_netw[[1]], community_detection = T, netw_layout = 'fr')
 ```
 
+
+### geom_mark_hull does not make circles when communitues contains only two entries, but works when I specify geom_mark_hull for specifically those communities that contains one entries
 
 ``` r
 netwenzyme <- ggplot(mapping = aes(x=x,y=y)) +
               geom_mark_hull(data = corr_plot_ggplot[[2]], aes(group = as.factor(Community), #community
-                                                           fill      = as.factor(Community),  
-                                                           colour    = as.factor(Community)), 
+                                                           filter = Community == 12), 
+                                                           fill = '#B15928',
+                                                           col  = '#B15928',
                                                            concavity = 5,
                                                            expand = unit(2.5, "mm"),
                                                            radius = unit(2.5, "mm"),
                                                            alpha  = 0.5,
-                                                           lwd = 0.5, show.legend = F) +
-                                        scale_fill_brewer(palette   = "Paired") + 
+                                                           lwd = 0.5, 
+                                                           show.legend = F) +
+                geom_mark_hull(data = corr_plot_ggplot[[2]], aes(group = as.factor(Community), #community
+                                              filter = Community == 4), 
+                                                           fill = "#FFFF99",
+                                                           col  = "#FFFF99",
+                                                           concavity = 5,
+                                                           expand = unit(2.5, "mm"),
+                                                           radius = unit(2.5, "mm"),
+                                                           alpha  = 0.5,
+                                                           lwd = 0.5, 
+                                                           show.legend = F) +
+                geom_mark_hull(data = corr_plot_ggplot[[2]], aes(group = as.factor(Community), #community
+                                              filter = Community == 5), 
+                                                           fill = "#6A3D9A",
+                                                           col  = "#6A3D9A",
+                                                           concavity = 5,
+                                                           expand = unit(2.5, "mm"),
+                                                           radius = unit(2.5, "mm"),
+                                                           alpha  = 0.5,
+                                                           lwd = 0.5, 
+                                                           show.legend = F) +
+                geom_mark_hull(data = corr_plot_ggplot[[2]], aes(group = as.factor(Community), #community
+                                                           fill      = as.factor(Community),  
+                                                           colour    = as.factor(Community)), 
+                                                           concavity = 6,
+                                                           expand = unit(2.5, "mm"),
+                                                           radius = unit(2.5, "mm"),
+                                                           alpha  = 0.5,
+                                                           lwd = 0.5, 
+                                                           show.legend = F) +
+                                        scale_fill_brewer(palette = "Paired") + 
                                         scale_colour_brewer(palette = "Paired") + 
-  
   new_scale_color()+
   geom_segment(data=corr_plot_ggplot[[1]], aes(x=x_start, xend = x_end, y=y_start,yend = y_end, col = comm_col), 
                show.legend = F, size = 0.2) +
@@ -652,19 +643,51 @@ netwenzyme <- ggplot(mapping = aes(x=x,y=y)) +
 ggsave("netwenzyme.svg", width = 2.5, height = 2.5)
 ```
 
+### geom_mark_hull does not make circles when communitues contains only two entries, but works when I specify geom_mark_hull for specifically those communities that contains one entries
+
 ``` r
 netwsubstrate <- ggplot(mapping = aes(x=x,y=y)) +
-              geom_mark_hull(data = corr_plot_ggplot[[2]], aes(group = as.factor(Community), #community
-                                                           fill      = as.factor(Community),  
-                                                           colour    = as.factor(Community)), 
+                                                      geom_mark_hull(data = corr_plot_ggplot[[2]], aes(group = as.factor(Community), #community
+                                                           filter = Community == 12), 
+                                                           fill = '#B15928',
+                                                           col  = '#B15928',
                                                            concavity = 5,
                                                            expand = unit(2.5, "mm"),
                                                            radius = unit(2.5, "mm"),
                                                            alpha  = 0.5,
-                                                           lwd = 0.5, show.legend = F) +
+                                                           lwd = 0.5, 
+                                                           show.legend = F) +
+                geom_mark_hull(data = corr_plot_ggplot[[2]], aes(group = as.factor(Community), #community
+                                              filter = Community == 4), 
+                                                           fill = "#FFFF99",
+                                                           col  = "#FFFF99",
+                                                           concavity = 5,
+                                                           expand = unit(2.5, "mm"),
+                                                           radius = unit(2.5, "mm"),
+                                                           alpha  = 0.5,
+                                                           lwd = 0.5, 
+                                                           show.legend = F) +
+                geom_mark_hull(data = corr_plot_ggplot[[2]], aes(group = as.factor(Community), #community
+                                              filter = Community == 5), 
+                                                           fill = "#6A3D9A",
+                                                           col  = "#6A3D9A",
+                                                           concavity = 5,
+                                                           expand = unit(2.5, "mm"),
+                                                           radius = unit(2.5, "mm"),
+                                                           alpha  = 0.5,
+                                                           lwd = 0.5, 
+                                                           show.legend = F) +
+                geom_mark_hull(data = corr_plot_ggplot[[2]], aes(group = as.factor(Community), #community
+                                                           fill      = as.factor(Community),  
+                                                           colour    = as.factor(Community)), 
+                                                           concavity = 6,
+                                                           expand = unit(2.5, "mm"),
+                                                           radius = unit(2.5, "mm"),
+                                                           alpha  = 0.5,
+                                                           lwd = 0.5, 
+                                                           show.legend = F) +
                                         scale_fill_brewer(palette = "Paired") + 
                                         scale_colour_brewer(palette = "Paired") + 
-  
   new_scale_color()+
   geom_segment(data=corr_plot_ggplot[[1]], aes(x=x_start, xend = x_end, y=y_start,yend = y_end, col = comm_col), 
                show.legend = F, size = 0.2) +
@@ -688,6 +711,7 @@ ggsave("netwsubstrate.svg", width = 2.5, height = 2.5)
 corr_plot_ggplot_subs <- corr_netw_forggplot_function(data_corr_netw[[3]], community_detection = F, netw_layout = "stress")
 ```
 
+
 ``` r
 netwenzyme_subset <- ggplot(mapping = aes(x=x,y=y)) +
   geom_segment(data=corr_plot_ggplot_subs[[1]], aes(x=x_start, xend = x_end, y=y_start,yend = y_end, size = r), 
@@ -701,19 +725,15 @@ netwenzyme_subset <- ggplot(mapping = aes(x=x,y=y)) +
   theme_void()+
   theme(plot.margin = margin(1,1,1,1, "mm"))+
   theme(legend.position = "bottom", legend.text = element_text(size = 8), legend.title = element_blank())
-
-
-
 ggsave("netwenzyme_subset.svg", width = 1.5, height = 1.5)
 ```
 
 ``` r
-p1 <- ggarrange(gb_Hmap, gb_hmap_subset, widths = c(w1, w2), heights = c(h1, h2), labels = c("A"))
-p2 <- ggarrange(netwenzyme, netwenzyme_subset, widths = c(2.4, 2), heights = c(2.6, 2.6), labels = c("C"))
-p3 <- ggarrange(netwsubstrate, p2, ncol = 2, widths = c(2.4, 4.4), heights = c(2.6,2.6), labels = c("B"))
+p1 <- ggarrange(gb_Hmap, gb_hmap_subset, widths = c(w1, w2), heights = c(h1, h2), labels = c("a"), font.label = list(size = 22, face = 'bold'))
+p2 <- ggarrange(netwenzyme, netwenzyme_subset, widths = c(2.3, 2.1), heights = c(2.6, 2.6), labels = c("c"), font.label = list(size = 22, face = 'bold'))
+p3 <- ggarrange(netwsubstrate, p2, ncol = 2, widths = c(2.3, 4.5), heights = c(2.6,2.6), labels = c("b"), font.label = list(size = 22, face = 'bold'))
 p4 <- ggarrange(p1, p3, ncol = 1, widths = c(w1+w2, w1+w2), heights = c(h1, 2.6))
-p5 <- ggarrange(p4, boxplot, ncol = 1, widths = c(w1+w2, w1+w2), heights = c(h1+2.6, 3), labels = c("", "D"))
-
-
-ggsave("correlationfigure.svg", height = h1+2.6+3, width = w1+w2)
+p5 <- ggarrange(p4, boxplot, ncol = 1, widths = c(w1+w2, w1+w2), heights = c(h1+2.5, 3), labels = c("", "d"), font.label = list(size = 22, face = 'bold'))
+ggsave("correlationfigure.svg", height = h1+2.5+3, width = w1+w2)
 ```
+
