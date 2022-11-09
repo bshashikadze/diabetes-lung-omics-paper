@@ -302,12 +302,12 @@ theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'),
 ``` r
 # row 1
 P1 <- ggarrange(pcaplot, oplsdaplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
-          labels = c("A", "B"), 
+          labels = c("a", "b"), font.label = list(size = 22, face = 'bold'), 
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
 # row 2
 P2 <- ggarrange(vipplot, volcanoplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
-          labels = c("C", "D"),
+          labels = c("c", "d"), font.label = list(size = 22, face = 'bold'),
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
 # combine all and save
