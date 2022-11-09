@@ -19,15 +19,17 @@ samples as columns
 
 ``` r
 data_raw <- read.delim("lipidomics_raw.txt", sep = "\t", header = T, check.names = F) %>% 
-  filter(if_all(-contains("Compound"), ~ (.x >= 0))) 
+  filter(if_all(-contains("Compound"), ~ (.x >= 0))) %>% 
+  rename_all(~str_replace(., "MIDY", "")) %>% 
+  rename_all(~str_replace(., "WT", ""))
 
 # class of each column
 sapply(data_raw, class)
 ```
 
-    ##    Compound     MIDY737     MIDY739     MIDY740     MIDY744       WT736 
+    ##    Compound         737         739         740         744         736 
     ## "character" "character" "character" "character" "character" "character" 
-    ##       WT738       WT741       WT743       WT745 
+    ##         738         741         743         745 
     ## "character" "character" "character" "character"
 
 ``` r
@@ -328,12 +330,12 @@ theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'),
 ``` r
 # row 1
 P1 <- ggarrange(pcaplot, oplsdaplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
-          labels = c("A", "B"), 
+          labels = c("a", "b"), font.label = list(size = 22, face = 'bold'), 
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
 # row 2
 P2 <- ggarrange(vipplot, volcanoplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
-          labels = c("C", "D"),
+          labels = c("c", "d"), font.label = list(size = 22, face = 'bold'),
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
 # combine all and save
