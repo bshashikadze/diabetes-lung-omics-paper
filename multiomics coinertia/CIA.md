@@ -376,16 +376,12 @@ ggsave("output/coinertiaplot.svg", height = 3.4, width = 3.4)
 ``` r
 ggarrange(coinertiaplot, loadingplot, widths = c(3.4, 3.4),
           heights = c(3.4,3.4),
-          labels = c("A", "B"), 
+          labels = c("a", "b"), font.label = list(size =22, face = 'bold'),
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
-```
-
-![](CIA_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
-
-``` r
 ggsave("output/multiomicsfigure.svg", width = 6.8, height = 3.4)
 ```
+
 
 ``` r
 save.image()
