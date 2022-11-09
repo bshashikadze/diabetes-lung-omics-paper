@@ -1,4 +1,3 @@
-
 Quantitative histomorphological analyses
 ================
 BS
@@ -46,7 +45,7 @@ boxplot_IHC <- ggplot(data_IHC, aes(x=reorder(group,-IHC_without_air), y=100*IHC
   theme(plot.margin = margin(1,1,-4,1, "mm"))+
   geom_point(size = 1.8, shape = 21, aes(fill = group)) +
   scale_y_continuous(limits = c(1,4), breaks = c(1,2,3,4))+
-  ylab(expression(V["v(ALOX15-positive cells/lung)"]*"(%)"))+
+  ylab(expression(V["v(ALOX15-positive cells/lung)"]*" (%)"))+
   xlab("")+
   theme(panel.border = element_rect(size = 0.5), 
         axis.text = element_text(size=9, color = "black"),     
@@ -68,10 +67,22 @@ p1 = rectGrob(width = 1, height = 1)
 
 
 plot_grid(p1, p1, boxplot_IHC, rel_widths = c(1,1,1), rel_heights = c(1,1,1),
-          labels = c("A", "B", "C"), 
+          labels = c("a", "b", "c"),  label_size = 22, label_fontfamily = 'bold', 
           ncol = 3, nrow = 1,  legend = "bottom",
           common.legend = T)
 ```
+
+    ## Warning in as_grob.default(plot): Cannot convert object of class character into
+    ## a grob.
+
+    ## Warning in as_grob.default(plot): Cannot convert object of class logical into a
+    ## grob.
+
+    ## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+    ## font family not found in Windows font database
+
+    ## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+    ## font family not found in Windows font database
 
 
 ``` r
@@ -90,7 +101,7 @@ boxplot_fibrosis <- ggplot(data_fibrosis, aes(x=reorder(group,fibrotic_area), y=
   theme(plot.margin = margin(2,1,-4,1, "mm"))+
   geom_point(size = 1.8, shape = 21, aes(fill = group)) +
   scale_y_continuous(limits = c(5,30), breaks = c(5,10,15,20,25,30))+
-  ylab(expression(V["v(interstitial connective tissue/lung)"]*"(%)"))+
+  ylab(expression(V["v(interstitial connective tissue/lung)"]* " (%)"))+
   xlab("")+
   theme(panel.border = element_rect(size = 0.5), 
         axis.text = element_text(size=9, color = "black"),     
@@ -109,10 +120,22 @@ boxplot_fibrosis <- ggplot(data_fibrosis, aes(x=reorder(group,fibrotic_area), y=
 
 ``` r
 plot_grid(p1, p1, boxplot_fibrosis, rel_widths = c(1,1,1), rel_heights = c(1,1,1),
-          labels = c("A", "B", "C"), 
+          labels = c("a", "b", "c"),  label_size = 22, label_fontfamily = 'bold',
           ncol = 3, nrow = 1,  legend = "bottom",
           common.legend = T)
 ```
+
+    ## Warning in as_grob.default(plot): Cannot convert object of class character into
+    ## a grob.
+
+    ## Warning in as_grob.default(plot): Cannot convert object of class logical into a
+    ## grob.
+
+    ## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+    ## font family not found in Windows font database
+
+    ## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+    ## font family not found in Windows font database
 
 
 ``` r
