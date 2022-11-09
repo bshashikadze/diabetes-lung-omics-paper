@@ -102,9 +102,9 @@ dotplot <-  ggplot(Matrisome_sig,  mapping = aes(x = Genes, y= Category, fill = 
              theme_bw() +
              theme(plot.margin = margin(1,1,1,-3, "mm"))+
              theme(panel.border = element_rect(size = 1),
-                            axis.text.x = element_text(angle = 90, colour = "black", size = 8.5, vjust = 0.5, hjust = 1),
-                            axis.title = element_text(size= 8.5),
-                            axis.text.y = element_text(size = 8.5, colour = "black"))+
+                            axis.text.x = element_text(angle = 90, colour = "black", size = 8.7, vjust = 0.5, hjust = 1),
+                            axis.title = element_text(size= 9),
+                            axis.text.y = element_text(size = 9, colour = "black"))+
                       xlab("")+
                       ylab("")+
                       theme(plot.title = element_blank()) +
@@ -114,8 +114,8 @@ dotplot <-  ggplot(Matrisome_sig,  mapping = aes(x = Genes, y= Category, fill = 
              theme(legend.position = "bottom", 
                    legend.justification = "left",
                    legend.box.spacing = unit(-4, 'mm'), 
-                   legend.title = element_text(size = 8.5),
-                   legend.text = element_text(size  = 8.5))+
+                   legend.title = element_text(size = 9),
+                   legend.text = element_text(size  = 9))+
                    theme(legend.key.height= unit(5, 'mm'))+
                       theme(strip.background = element_blank(), strip.text = element_text(size = 8.5, face = "bold"))
 ```
@@ -208,9 +208,9 @@ oraplot_legend <- cowplot::get_legend(oraplot_for_legend)
 
 ``` r
 p0 =  rectGrob(width = 1, height = 1)
-p2 <- ggarrange(p0, volcanoplot, widths = c(3.4,3.4), heights = c(3.4,3.4), labels = c("","B"))
-p3 <- ggarrange(p2, dotplot, ncol = 1, widths = c(6.8,6.8), heights = c(3.4, 2.6), labels = c("", "C"))
-p4 <- plot_grid(oraplot, oraplot_legend, ncol = 1, rel_heights = c(6,1), labels = c("D"))
+p2 <- ggarrange(p0, volcanoplot, widths = c(3.4,3.4), heights = c(3.4,3.4), labels = c("a","b"), font.label = list(size = 22, face = 'bold'))
+p3 <- ggarrange(p2, dotplot, ncol = 1, widths = c(6.8,6.8), heights = c(3.4, 2.6), labels = c("", "c"), font.label = list(size = 22, face = 'bold'))
+p4 <- plot_grid(oraplot, oraplot_legend, ncol = 1, rel_heights = c(6,1), labels = c("d"), label_size = 22, label_fontface = 'bold')
 p5 <- ggarrange(p3, p4, ncol = 1, widths = c(6.8,6.8), heights = c(6, 3.5))
 ggsave("proteomics_fig1.svg", width = 6.8, height = 9.5)
 ```
