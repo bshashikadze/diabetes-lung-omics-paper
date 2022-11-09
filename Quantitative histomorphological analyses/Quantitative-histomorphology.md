@@ -67,7 +67,7 @@ p1 = rectGrob(width = 1, height = 1)
 
 
 plot_grid(p1, p1, boxplot_IHC, rel_widths = c(1,1,1), rel_heights = c(1,1,1),
-          labels = c("A", "B", "C"), 
+          labels = c("a", "b", "c"),  label_size = 22, label_fontfamily = 'bold', 
           ncol = 3, nrow = 1,  legend = "bottom",
           common.legend = T)
 ```
@@ -77,6 +77,12 @@ plot_grid(p1, p1, boxplot_IHC, rel_widths = c(1,1,1), rel_heights = c(1,1,1),
 
     ## Warning in as_grob.default(plot): Cannot convert object of class logical into a
     ## grob.
+
+    ## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+    ## font family not found in Windows font database
+
+    ## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+    ## font family not found in Windows font database
 
 ![](Quantitative-histomorphology_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
@@ -115,7 +121,7 @@ boxplot_fibrosis <- ggplot(data_fibrosis, aes(x=reorder(group,fibrotic_area), y=
 
 ``` r
 plot_grid(p1, p1, boxplot_fibrosis, rel_widths = c(1,1,1), rel_heights = c(1,1,1),
-          labels = c("A", "B", "C"), 
+          labels = c("a", "b", "c"),  label_size = 22, label_fontfamily = 'bold',
           ncol = 3, nrow = 1,  legend = "bottom",
           common.legend = T)
 ```
@@ -125,6 +131,12 @@ plot_grid(p1, p1, boxplot_fibrosis, rel_widths = c(1,1,1), rel_heights = c(1,1,1
 
     ## Warning in as_grob.default(plot): Cannot convert object of class logical into a
     ## grob.
+
+    ## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+    ## font family not found in Windows font database
+
+    ## Warning in grid.Call.graphics(C_text, as.graphicsAnnot(x$label), x$x, x$y, :
+    ## font family not found in Windows font database
 
 ![](Quantitative-histomorphology_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 

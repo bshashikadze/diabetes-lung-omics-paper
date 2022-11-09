@@ -69,7 +69,7 @@ p1 = rectGrob(width = 1, height = 1)
 
 
 plot_grid(p1, p1, boxplot_IHC, rel_widths = c(1,1,1), rel_heights = c(1,1,1),
-          labels = c("A", "B", "C"), 
+          labels = c("a", "b", "c"),  label_size = 22, label_fontfamily = 'bold', 
           ncol = 3, nrow = 1,  legend = "bottom",
           common.legend = T)
 ggsave("IHC.svg", width = 6.6, height = 2.2)
@@ -107,7 +107,7 @@ boxplot_fibrosis <- ggplot(data_fibrosis, aes(x=reorder(group,fibrotic_area), y=
 ### add space for staining pictures
 ```{r}
 plot_grid(p1, p1, boxplot_fibrosis, rel_widths = c(1,1,1), rel_heights = c(1,1,1),
-          labels = c("A", "B", "C"), 
+          labels = c("a", "b", "c"),  label_size = 22, label_fontfamily = 'bold',
           ncol = 3, nrow = 1,  legend = "bottom",
           common.legend = T)
 ggsave("fibrosis.svg", width = 6.6, height = 2.2)
