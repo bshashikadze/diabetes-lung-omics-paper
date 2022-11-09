@@ -53,10 +53,11 @@ volcanoplot <- ggplot(msempire_results_volcano %>%
                                     "downregulated_in_MIDY"= "firebrick3", "upregulated_in_MIDY"="#0072B2"))+
          scale_alpha_manual(values= c("n.s." = 0.2, "downregulated_in_MIDY"= 1, "upregulated_in_MIDY"= 1))+
          geom_text_repel(data = subset(msempire_results_volcano, 
-                                       adj_p_value < 0.05 & l2fc > 0.6 |adj_p_value < 0.01 & l2fc < -0.7),
+                                       significant == "+" & l2fc > 0.6 | significant == "+" & l2fc < -0.7),
                                        aes(label = delabel),
                                        size = 2,
                                        color = "black",
+                                       seed = 1234,
                                        box.padding = 0.3,
                                        alpha = 1)+
          theme_bw()+
@@ -73,7 +74,7 @@ volcanoplot <- ggplot(msempire_results_volcano %>%
                axis.text.x = element_text(size = 9, colour = "black", vjust = -0.1), 
                axis.text.y = element_text(size = 9, colour = "black"))+
          xlab("log2 fold change (MIDY/WT)")+
-         ylab("-log10 P-value")
+         ylab("-log10 p-value")
 ```
 
 ## dot plot (matrisome proteins)
@@ -215,5 +216,5 @@ p5 <- ggarrange(p3, p4, ncol = 1, widths = c(6.8,6.8), heights = c(6, 3.5))
 ggsave("proteomics_fig1.svg", width = 6.8, height = 9.5)
 ```
 
-    ## Warning: ggrepel: 5 unlabeled data points (too many overlaps). Consider
+    ## Warning: ggrepel: 7 unlabeled data points (too many overlaps). Consider
     ## increasing max.overlaps
