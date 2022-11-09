@@ -377,11 +377,6 @@ ggsave("output/multiomicsfigure.svg", width = 6.8, height = 3.4)
 ```
 
 
-
-``` r
-ggsave("output/multiomicsfigure.svg", width = 6.8, height = 3.4)
-```
-
 ``` r
 save.image()
 ```
