@@ -190,12 +190,14 @@ xlab(paste("PC axis 1 - ", data_pca[[2]][1], "%", sep=""))+
 ylab(paste("PC axis 2 - ", data_pca[[2]][2], "%", sep=""))+
 geom_hline(yintercept = 0, linetype = "dashed")+
 geom_vline(xintercept = 0, linetype = "dashed")+
-theme_bw() + theme(panel.border = element_rect(size = 1),
-                   axis.title = element_text(size = 10, colour="black"), 
-                   axis.text.x = element_text(size=10, colour="black"),
-                   axis.text.y = element_text(size = 10, colour="black"),
+theme_bw() + 
+  theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"), 
+                   axis.title = element_text(size = 9, colour="black"), 
+                   axis.text.x = element_text(size= 9, colour="black"),
+                   axis.text.y = element_text(size = 9, colour="black"),
 panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-                      theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), legend.title = element_blank(), legend.text = element_text(size = 10))
+                      theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), legend.title = element_blank(), legend.text = element_text(size = 9))
 ```
 
 ### Orthogonal Projections to Latent Structures Discriminant Analysis (OPLS-DA) (calculations)
@@ -254,17 +256,18 @@ vipplot <- ggplot(data_oplsda[[2]] %>%
 geom_point(size = 3.5, shape = 21) +
 theme_bw()+
 scale_fill_manual(values = c("firebrick3", "#0072B2"))+
-theme(panel.border = element_rect(size = 1), panel.grid.major = element_line(), panel.grid.minor = element_blank(), panel.background = element_blank(),
-                            axis.text.x = element_text(colour = "black", size = 10),
-                            axis.title.x = element_text(size= 10),
-                            axis.title.y = element_blank(),
-                            axis.text.y = element_text(size = 10, colour = "black"))+
+theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"), 
+                   axis.title = element_text(size = 9, colour="black"), 
+                   axis.text.x = element_text(size= 9, colour="black"),
+                   axis.text.y = element_text(size = 9, colour="black"),
+panel.grid.major = element_line(), panel.grid.minor = element_blank())+
 xlab("VIP score")+
 ggtitle("VIP plot") +
 theme(plot.title = element_blank()) +
 theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), 
       legend.title = element_blank(), 
-      legend.text = element_text(size = 10))
+      legend.text = element_text(size = 9))
 ```
 
 ### volcano plot highlighting compounds with a large VIP scores
@@ -288,18 +291,19 @@ geom_text_repel(
   alpha = 1
   )+
 theme_bw()+
-theme(panel.border = element_rect(size = 1), panel.grid.major = element_line(), panel.grid.minor = element_blank(), panel.background = element_blank(),
-                            axis.text.x = element_text(colour = "black", size = 10),
-                            axis.title.x = element_text(size= 10),
-                            axis.title.y =element_text(colour = "black", size = 10),
-                            axis.text.y = element_text(size = 10, colour = "black"))+
+theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"), 
+                   axis.title = element_text(size = 9, colour="black"), 
+                   axis.text.x = element_text(size= 9, colour="black"),
+                   axis.text.y = element_text(size = 9, colour="black"),
+panel.grid.major = element_line(), panel.grid.minor = element_blank())+
 xlab("log2 fold change (MIDY/WT)")+
 ylab("P-value")+
                       theme(plot.title = element_blank()) +
                       theme(legend.position = "top", 
                             legend.box.spacing = unit(0.5, 'mm'), 
                             legend.title = element_blank(), 
-                            legend.text = element_text(size = 10))+
+                            legend.text = element_text(size = 9))+
 scale_x_continuous(breaks = c(-1,0,1), limits = c(-1.8, 1.8))
 ```
 
@@ -315,14 +319,15 @@ ylab("OPLS-DA axis 2")+
 geom_hline(yintercept = 0, linetype = "dashed")+
 geom_vline(xintercept = 0, linetype = "dashed")+
 theme_bw() + 
-  theme(panel.border = element_rect(size = 1),
-                   axis.title = element_text(size = 10, colour="black"), 
-                   axis.text.x = element_text(size=10, colour="black"), 
-                   axis.text.y = element_text(size = 10, colour="black"),
+    theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"), 
+                   axis.title = element_text(size = 9, colour="black"), 
+                   axis.text.x = element_text(size= 9, colour="black"),
+                   axis.text.y = element_text(size = 9, colour="black"),
 panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
 theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), 
       legend.title = element_blank(), 
-      legend.text = element_text(size = 10))
+      legend.text = element_text(size = 9))
 ```
 
 # combine plots
@@ -330,14 +335,15 @@ theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'),
 ``` r
 # row 1
 P1 <- ggarrange(pcaplot, oplsdaplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
-          labels = c("a", "b"), font.label = list(size = 22, face = 'bold'), 
+          labels = c("A", "B"), font.label = list(size = 17, face = 'bold'), 
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
 # row 2
 P2 <- ggarrange(vipplot, volcanoplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
-          labels = c("c", "d"), font.label = list(size = 22, face = 'bold'),
+          labels = c("C", "D"), font.label = list(size = 17, face = 'bold'),
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
+
 # combine all and save
 ggarrange(P1,P2, 
           ncol = 1, nrow = 2, widths = c(6.8, 6.8), heights = c(6.8, 6.8))
