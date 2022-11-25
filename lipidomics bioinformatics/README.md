@@ -6,8 +6,6 @@ B.Shashikadze
 datasets are available in the supplementary tables of the manuscript
 
 
-### load libraries
-
 ``` r
 library(tidyverse) 
 library(ggrepel)  
@@ -22,11 +20,18 @@ samples as columns
 
 ``` r
 data_raw <- read.delim("lipidomics_raw.txt", sep = "\t", header = T, check.names = F) %>% 
-  filter(if_all(-contains("Compound"), ~ (.x >= 0))) 
+  filter(if_all(-contains("Compound"), ~ (.x >= 0))) %>% 
+  rename_all(~str_replace(., "MIDY", "")) %>% 
+  rename_all(~str_replace(., "WT", ""))
 
 # class of each column
 sapply(data_raw, class)
 ```
+
+    ##    Compound         737         739         740         744         736 
+    ## "character" "character" "character" "character" "character" "character" 
+    ##         738         741         743         745 
+    ## "character" "character" "character" "character"
 
 ``` r
 # convert all but first column to numeric
@@ -43,6 +48,8 @@ Groups <- data.frame(Bioreplicate, Condition)
 write.table(Groups, "conditions.txt", row.names = F, quote = F, sep = "\t")
 cat("conditions file was generated rename the file as Groups_modified, and modify the second column according to groups")
 ```
+
+    ## conditions file was generated rename the file as Groups_modified, and modify the second column according to groups
 
 ### read modified Groups file
 
@@ -126,6 +133,16 @@ statistic_function <- function(data, conditions_data, condition, parametric = TR
 statistics_data <- statistic_function(data_raw, Groups, condition = "Condition", parametric = TRUE, first_group = "MIDY", padjmethod = "none", id_name = "Compound", values_log = F)
 ```
 
+    ## Joining, by = "Bioreplicate"
+    ## `summarise()` has grouped output by 'Compound'. You can override using the
+    ## `.groups` argument.
+
+    ## positive fold change means up in MIDY
+
+    ## Joining, by = "Compound"
+
+    ## p-values were adjusted using the none method
+
 ## multivariate analysis
 
 ### prepare data for the multivariate analysis
@@ -161,6 +178,8 @@ pca_function <- function(data) {
 data_pca <- pca_function(data_multi)
 ```
 
+    ## Joining, by = "Bioreplicate"
+
 ### principal component analysis (plotting)
 
 ``` r
@@ -172,12 +191,14 @@ xlab(paste("PC axis 1 - ", data_pca[[2]][1], "%", sep=""))+
 ylab(paste("PC axis 2 - ", data_pca[[2]][2], "%", sep=""))+
 geom_hline(yintercept = 0, linetype = "dashed")+
 geom_vline(xintercept = 0, linetype = "dashed")+
-theme_bw() + theme(panel.border = element_rect(size = 1),
-                   axis.title = element_text(size = 10, colour="black"), 
-                   axis.text.x = element_text(size=10, colour="black"),
-                   axis.text.y = element_text(size = 10, colour="black"),
+theme_bw() + 
+  theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"), 
+                   axis.title = element_text(size = 9, colour="black"), 
+                   axis.text.x = element_text(size= 9, colour="black"),
+                   axis.text.y = element_text(size = 9, colour="black"),
 panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
-                      theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), legend.title = element_blank(), legend.text = element_text(size = 10))
+                      theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), legend.title = element_blank(), legend.text = element_text(size = 9))
 ```
 
 ### Orthogonal Projections to Latent Structures Discriminant Analysis (OPLS-DA) (calculations)
@@ -218,6 +239,16 @@ set.seed(123456)
 data_oplsda <- oplsda_function(data_multi, scaling = "pareto", n_perm = 200, n_crossval = 9, vip_thresh = 1.5)
 ```
 
+    ## OPLS-DA
+    ## 9 samples x 85 variables and 1 response
+    ## pareto scaling of predictors and standard scaling of response(s)
+    ##       R2X(cum) R2Y(cum) Q2(cum)  RMSEE pre ort  pR2Y   pQ2
+    ## Total    0.709    0.991   0.635 0.0627   1   2 0.095 0.045
+
+    ## Joining, by = "Compound"
+
+![](lipidomics-bioinformatics_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
+
 ### variance importance in projection (plotting)
 
 ``` r
@@ -226,17 +257,18 @@ vipplot <- ggplot(data_oplsda[[2]] %>%
 geom_point(size = 3.5, shape = 21) +
 theme_bw()+
 scale_fill_manual(values = c("firebrick3", "#0072B2"))+
-theme(panel.border = element_rect(size = 1), panel.grid.major = element_line(), panel.grid.minor = element_blank(), panel.background = element_blank(),
-                            axis.text.x = element_text(colour = "black", size = 10),
-                            axis.title.x = element_text(size= 10),
-                            axis.title.y = element_blank(),
-                            axis.text.y = element_text(size = 10, colour = "black"))+
+theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"), 
+                   axis.title = element_text(size = 9, colour="black"), 
+                   axis.text.x = element_text(size= 9, colour="black"),
+                   axis.text.y = element_text(size = 9, colour="black"),
+panel.grid.major = element_line(), panel.grid.minor = element_blank())+
 xlab("VIP score")+
 ggtitle("VIP plot") +
 theme(plot.title = element_blank()) +
 theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), 
       legend.title = element_blank(), 
-      legend.text = element_text(size = 10))
+      legend.text = element_text(size = 9))
 ```
 
 ### volcano plot highlighting compounds with a large VIP scores
@@ -260,18 +292,19 @@ geom_text_repel(
   alpha = 1
   )+
 theme_bw()+
-theme(panel.border = element_rect(size = 1), panel.grid.major = element_line(), panel.grid.minor = element_blank(), panel.background = element_blank(),
-                            axis.text.x = element_text(colour = "black", size = 10),
-                            axis.title.x = element_text(size= 10),
-                            axis.title.y =element_text(colour = "black", size = 10),
-                            axis.text.y = element_text(size = 10, colour = "black"))+
+theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"), 
+                   axis.title = element_text(size = 9, colour="black"), 
+                   axis.text.x = element_text(size= 9, colour="black"),
+                   axis.text.y = element_text(size = 9, colour="black"),
+panel.grid.major = element_line(), panel.grid.minor = element_blank())+
 xlab("log2 fold change (MIDY/WT)")+
 ylab("P-value")+
                       theme(plot.title = element_blank()) +
                       theme(legend.position = "top", 
                             legend.box.spacing = unit(0.5, 'mm'), 
                             legend.title = element_blank(), 
-                            legend.text = element_text(size = 10))+
+                            legend.text = element_text(size = 9))+
 scale_x_continuous(breaks = c(-1,0,1), limits = c(-1.8, 1.8))
 ```
 
@@ -287,14 +320,15 @@ ylab("OPLS-DA axis 2")+
 geom_hline(yintercept = 0, linetype = "dashed")+
 geom_vline(xintercept = 0, linetype = "dashed")+
 theme_bw() + 
-  theme(panel.border = element_rect(size = 1),
-                   axis.title = element_text(size = 10, colour="black"), 
-                   axis.text.x = element_text(size=10, colour="black"), 
-                   axis.text.y = element_text(size = 10, colour="black"),
+    theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"), 
+                   axis.title = element_text(size = 9, colour="black"), 
+                   axis.text.x = element_text(size= 9, colour="black"),
+                   axis.text.y = element_text(size = 9, colour="black"),
 panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
 theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), 
       legend.title = element_blank(), 
-      legend.text = element_text(size = 10))
+      legend.text = element_text(size = 9))
 ```
 
 # combine plots
@@ -302,19 +336,21 @@ theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'),
 ``` r
 # row 1
 P1 <- ggarrange(pcaplot, oplsdaplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
-          labels = c("a", "b"), font.label = list(size = 22, face = 'bold'), 
+          labels = c("A", "B"), font.label = list(size = 17, face = 'bold'), 
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
 # row 2
 P2 <- ggarrange(vipplot, volcanoplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
-          labels = c("c", "d"), font.label = list(size = 22, face = 'bold'),
+          labels = c("C", "D"), font.label = list(size = 17, face = 'bold'),
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
+
 # combine all and save
 ggarrange(P1,P2, 
           ncol = 1, nrow = 2, widths = c(6.8, 6.8), heights = c(6.8, 6.8))
 ```
 
+![](lipidomics-bioinformatics_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 ggsave("lipidomics.svg", height = 6.8, width = 6.8)
