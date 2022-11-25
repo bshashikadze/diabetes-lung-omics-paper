@@ -48,14 +48,14 @@ volcanoplot <- ggplot(msempire_results_volcano %>%
                                      alpha = diff_abundant))+
          geom_point(aes(shape =diff_abundant, size = diff_abundant))+
          scale_shape_manual(values = c(n.s. = 16, downregulated_in_MIDY =21, upregulated_in_MIDY =21))+
-         scale_size_manual(values=c(n.s. = 1.4, downregulated_in_MIDY =1.8, upregulated_in_MIDY =1.8))+
+         scale_size_manual(values=c(n.s. = 1.6, downregulated_in_MIDY =2, upregulated_in_MIDY =2))+
          scale_fill_manual(values=c("n.s." = "#4a4949", 
                                     "downregulated_in_MIDY"= "firebrick3", "upregulated_in_MIDY"="#0072B2"))+
          scale_alpha_manual(values= c("n.s." = 0.2, "downregulated_in_MIDY"= 1, "upregulated_in_MIDY"= 1))+
          geom_text_repel(data = subset(msempire_results_volcano, 
                                        significant == "+" & l2fc > 0.6 | significant == "+" & l2fc < -0.7),
                                        aes(label = delabel),
-                                       size = 2,
+                                       size = 2.5,
                                        color = "black",
                                        seed = 1234,
                                        box.padding = 0.3,
@@ -64,15 +64,16 @@ volcanoplot <- ggplot(msempire_results_volcano %>%
          theme(plot.margin = margin(1,1,5,1, "mm"))+
          scale_x_continuous(limits = c(-1.9,1.9)) +
          scale_y_continuous(limits = c(0, 15.5)) +
-         theme(panel.border = element_rect(size = 1), 
+         theme(panel.border = element_rect(size = 1, colour = "black"), 
                panel.grid.major = element_line(), 
                panel.grid.minor = element_blank(),
                panel.background = element_blank(), 
+               axis.ticks = element_line("black"), 
                axis.line = element_blank(), 
                legend.position = "NONE")+
-         theme(axis.title = element_text(size  = 9), 
-               axis.text.x = element_text(size = 9, colour = "black", vjust = -0.1), 
-               axis.text.y = element_text(size = 9, colour = "black"))+
+         theme(axis.title = element_text(size  = 10, colour = "black"), 
+               axis.text.x = element_text(size = 10, colour = "black", vjust = -0.1), 
+               axis.text.y = element_text(size = 10, colour = "black"))+
          xlab("log2 fold change (MIDY/WT)")+
          ylab("-log10 p-value")
 ```
@@ -99,26 +100,28 @@ Matrisome_sig <- matrisome %>%
 Matrisome_sig$Genes <- factor(Matrisome_sig$Genes, levels = Matrisome_sig$Genes
                              [order(Matrisome_sig$Category)])
 dotplot <-  ggplot(Matrisome_sig,  mapping = aes(x = Genes, y= Category, fill = l2fc, size = log10p)) +
-             geom_point(shape=21)+
-             theme_bw() +
-             theme(plot.margin = margin(1,1,1,-3, "mm"))+
-             theme(panel.border = element_rect(size = 1),
-                            axis.text.x = element_text(angle = 90, colour = "black", size = 8.7, vjust = 0.5, hjust = 1),
-                            axis.title = element_text(size= 9),
-                            axis.text.y = element_text(size = 9, colour = "black"))+
+            geom_point(shape=21)+
+            theme_bw() +
+            theme(plot.margin = margin(1,1,1,-3, "mm"))+
+            theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"),
+                            axis.text.x = element_text(angle = 90, colour = "black", size =9, vjust = 0.5, hjust = 1),
+                            axis.title = element_text(size= 10, colour = "black"),
+                            axis.text.y = element_text(size = 10, colour = "black"))+
                       xlab("")+
                       ylab("")+
                       theme(plot.title = element_blank()) +
-                      theme(panel.grid.major = element_line(), panel.grid.minor = element_blank())+
+                      theme(panel.grid.major = element_line(), 
+                            panel.grid.minor = element_blank())+
                       scale_size_continuous(name = "-log10(FDR)", range = c(2, 3.5), breaks = c(3,6,9,12))+
                       scale_fill_gradient(name = "log2 fold change", low = "firebrick3", high = "navy")+
-             theme(legend.position = "bottom", 
+            theme(legend.position = "bottom", 
                    legend.justification = "left",
                    legend.box.spacing = unit(-4, 'mm'), 
                    legend.title = element_text(size = 9),
                    legend.text = element_text(size  = 9))+
                    theme(legend.key.height= unit(5, 'mm'))+
-                      theme(strip.background = element_blank(), strip.text = element_text(size = 8.5, face = "bold"))
+                      theme(strip.background = element_blank(), strip.text = element_text(size = 10, face = "bold"))
 ```
 
 ## ORA plot (STRING pre-ranked)
@@ -165,13 +168,14 @@ oraplot <- ggplot(revigo_data_filtered, aes(x = enrichment.score, y= term.descri
                                              size = genes.mapped), fill = NULL) +
             geom_point(shape = 21)+
             theme_bw() +
-            theme(panel.border = element_rect(size = 1),
-                            axis.text.x = element_text(angle = 90, colour = "black", size = 9),
-                            axis.title = element_text(size= 9),
-                            axis.text.y = element_text(size = 9, colour = "black"))+
+            theme(panel.border = element_rect(size = 1, colour = "black"),
+                            axis.text.x = element_text(angle = 90, colour = "black", size = 10),
+                            axis.title = element_text(size= 10, colour = "black"),
+                            axis.ticks = element_line("black"), 
+                            axis.text.y = element_text(size = 10, colour = "black"))+
                       xlab("Enrichment score")+
                       ylab("")+
-                      theme(plot.title = element_text(size = 9, hjust=0.5,
+                      theme(plot.title = element_text(size = 10, hjust=0.5,
                                                       face = "bold")) +
                       theme(plot.margin = margin(1,1,1,-3, "mm"))+
                       theme(panel.grid.major = element_line(), panel.grid.minor = element_blank())+
@@ -180,8 +184,7 @@ oraplot <- ggplot(revigo_data_filtered, aes(x = enrichment.score, y= term.descri
                       theme(legend.position = "none", 
                             legend.box.spacing = unit(0.5, 'mm'), 
                             legend.title = element_text(size = 9), 
-                            legend.text = 
-                            element_text(size = 9))+
+                            legend.text = element_text(size = 9))+
                       facet_grid(~direction, scales = "free")+
             theme(strip.background = element_blank(), strip.text = element_text(size = 9, face = "bold"))
 ```
@@ -198,8 +201,8 @@ oraplot_for_legend <- ggplot(revigo_data_filtered, aes(x = enrichment.score, y= 
                         scale_fill_gradient  (name = "-log10(FDR)", low = "#bf9deb", high = "#200b3b")+
                   theme(legend.position  = "bottom", 
                             legend.box.spacing = unit(-3, 'mm'), 
-                            legend.title = element_text(size = 8.5), 
-                            legend.text  = element_text(size = 8.5)) +
+                            legend.title = element_text(size = 9), 
+                            legend.text  = element_text(size = 9)) +
                   theme(legend.key.height= unit(5, 'mm'))
 
 oraplot_legend <- cowplot::get_legend(oraplot_for_legend) 
@@ -209,12 +212,12 @@ oraplot_legend <- cowplot::get_legend(oraplot_for_legend)
 
 ``` r
 p0 =  rectGrob(width = 1, height = 1)
-p2 <- ggarrange(p0, volcanoplot, widths = c(3.4,3.4), heights = c(3.4,3.4), labels = c("a","b"), font.label = list(size = 22, face = 'bold'))
-p3 <- ggarrange(p2, dotplot, ncol = 1, widths = c(6.8,6.8), heights = c(3.4, 2.6), labels = c("", "c"), font.label = list(size = 22, face = 'bold'))
-p4 <- plot_grid(oraplot, oraplot_legend, ncol = 1, rel_heights = c(6,1), labels = c("d"), label_size = 22, label_fontface = 'bold')
-p5 <- ggarrange(p3, p4, ncol = 1, widths = c(6.8,6.8), heights = c(6, 3.5))
-ggsave("proteomics_fig1.svg", width = 6.8, height = 9.5)
+p2 <- ggarrange(p0, volcanoplot, widths = c(3.55,3.55), heights = c(3.55,3.55), labels = c("A","B"), font.label = list(size = 17, face = 'bold'))
+p3 <- ggarrange(p2, dotplot, ncol = 1, widths = c(7.1,7.2), heights = c(3.55, 2.6), labels = c("", "C"), font.label = list(size = 17, face = 'bold'))
+p4 <- plot_grid(oraplot, oraplot_legend, ncol = 1, rel_heights = c(6,1), labels = c("D"), label_size = 17, label_fontface = 'bold')
+p5 <- ggarrange(p3, p4, ncol = 1, widths = c(7.1,7.1), heights = c(6, 3.5))
+ggsave("proteomics_fig1.svg", width = 7.1, height = 9.5)
 ```
 
-    ## Warning: ggrepel: 7 unlabeled data points (too many overlaps). Consider
+    ## Warning: ggrepel: 9 unlabeled data points (too many overlaps). Consider
     ## increasing max.overlaps
