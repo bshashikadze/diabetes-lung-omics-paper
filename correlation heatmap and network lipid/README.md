@@ -1,7 +1,7 @@
 Correlation analysis, visualization as heatmap and network
 ================
 BS
-16/10/2022
+25/11/2022
 
 Lipidomics dataset is abailable in the supplementary tables of the manuscrript
 
@@ -38,6 +38,11 @@ data_raw  <- read.delim("lipidomics_raw.txt", sep = "\t", header = T, check.name
 sapply(data_raw, class)
 ```
 
+    ##    Compound     MIDY737     MIDY739     MIDY740     MIDY744       WT736 
+    ## "character" "character" "character" "character" "character" "character" 
+    ##       WT738       WT741       WT743       WT745 
+    ## "character" "character" "character" "character"
+
 ``` r
 # convert all but first column to numeric
 data_raw[ , 2:10] <- apply(data_raw[ , 2:10], 2,            
@@ -66,6 +71,8 @@ cat("Groups file was generated, rename the file as Groups_modified,
     and modify the second column according to experimental condition")
 ```
 
+    ## Groups file was generated, rename the file as Groups_modified, 
+    ##     and modify the second column according to experimental condition
 
 ### prepare data for the correlation analysis
 
@@ -133,6 +140,8 @@ corr_function <- function(data, corr_method = "spearman", padjmethod = "BH", adj
 data_corr <- corr_function(data_for_corr, corr_method = "spearman", adjusted = T, padjmethod = "BH")
 ```
 
+    ## this function returned a list of 3. The first element contains  spearman correlation coeficients,
+    ##              the second element contains raw p-values in lower, and BH adjusted p-values in an upper triangle, and the third element contains adjusted p-values only
 
 ## hierarchical clustering of the correlation matrix
 
@@ -196,6 +205,7 @@ hmap <- Heatmap(as.matrix(data_corr[[1]]),
 ht <- draw(hmap)
 ```
 
+![](lipidomics_correlation_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 #calculate actual plot size
@@ -205,7 +215,8 @@ h1 = ComplexHeatmap:::height(ht)
 h1 = convertY(h1, "inch", valueOnly = TRUE)
 c(w1, h1)
 ```
--
+
+    ## [1] 3.907964 3.883703
 
 ``` r
 #save
@@ -353,6 +364,9 @@ extract_features_function <- function(data, n_clust = 3, start_n = 1, end_n =12)
 subset_data  <- extract_features_function(km_clust)
 ```
 
+    ## this function returned a list of 5. the first element is annotation information. The second element is correlation coefficients, the 
+    ##         third element is adjusted p-values, the fourth element is adjusted p values replaced with starts, 
+    ##         the fifth element is quantitative data
 
 ### plot heatmap for interesting correlations
 
@@ -404,7 +418,9 @@ w2 = convertX(w2, "inch", valueOnly = TRUE)
 h2 = ComplexHeatmap:::height(ht_subs )
 h2 = convertY(h2, "inch", valueOnly = TRUE)
 c(w2, h2)
+```
 
+    ## [1] 2.900884 2.909624
 
 ``` r
 # save
@@ -415,26 +431,57 @@ ht_subs <- draw(hmap_subset)
 gb_hmap_subset = grid.grabExpr(draw(hmap_subset))
 ```
 
-## boxplot of interesting features
+## univariate scatter plot of interesting features
+
+### prepare data
 
 ``` r
-subset_data[[5]]$Condition <- factor(subset_data[[5]]$Condition, levels = c("WT", "MIDY"))
+# prepare data for error bar calculation
+ratios_error_bar <- subset_data[[5]] %>% 
+group_by(Compound, Condition) %>% 
+summarise(mean = mean(Concentration), 
+          sd = sd(Concentration)) %>% 
+  ungroup()
+```
 
-boxplot <- ggplot(subset_data[[5]], aes(x=Condition, y=Concentration, fill = Condition))+
-           geom_boxplot(color = "#888888", outlier.fill = NULL, lwd=0.3,
-                        width=0.8/length(unique(subset_data[[5]]$Condition)))+
+    ## `summarise()` has grouped output by 'Compound'. You can override using the
+    ## `.groups` argument.
+
+``` r
+# prepare data for plotting
+data_plot <- subset_data[[5]] %>%  
+left_join(ratios_error_bar)
+```
+
+    ## Joining, by = c("Compound", "Condition")
+
+### plot bar chart with data
+
+``` r
+# reorder data
+data_plot$Condition <- factor(data_plot$Condition, levels = c("WT", "MIDY"))
+
+# plot 
+bar_plot <- ggplot(data_plot, aes(x=Condition, y=Concentration))+
+  geom_bar(stat = "summary", fill = "#DCDCDC", alpha = 0.7, color = "black", lwd=0.5,
+           width=0.8/length(unique(data_plot$Condition))) + 
+  stat_summary(aes(group=Compound), fun=mean, geom="line", colour="black")+
+   geom_jitter(size = 1.8,  aes(fill = Condition), shape = 21, width = 0.25) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
   scale_fill_manual(values=c("#0072B2", "firebrick3"))+
   theme_bw()+
-  geom_point(size = 1.4, shape = 21, fill = "#888888") +
   ylab("Lipid concentration (ng/g tissue)")+
   xlab("")+
-  theme(panel.border = element_rect(size=0.8), 
+  theme(panel.border = element_rect(size=0.8, color = "black"),
+        axis.ticks = element_line(colour = "black"),
+        axis.text = element_text(size = 9, colour = "black"),
         axis.title.x = element_text(size = 9, colour = "black"), 
         axis.title.y = element_text(size = 9, colour = "black"), 
         panel.grid =   element_blank())+
   stat_compare_means(data = subset_data[[5]] %>% select(-Concentration) %>% mutate(Concentration = log2conc), 
-                     label.x = 1.7, aes(label = paste0("p = ", ..p.format..)), 
-                     method = "t.test", size = 2, vjust = 1)+
+                     label.x = 2, hjust = 1, aes(label = sprintf("p = %5.2f", as.numeric(..p.format..))),
+                     method = "t.test", size = 2.75, vjust = 2.2, angle =90)+
   facet_wrap(~Compound, scales = "free_y", ncol = 6)+
   theme(legend.position = "bottom", 
         legend.box.spacing = unit(0.8, 'mm'), 
@@ -499,6 +546,12 @@ corr_netw_function <- function(r_threshold = 0.8, padj_threshold = 0.05)
 data_corr_netw <- corr_netw_function()
 ```
 
+    ## Joining, by = "Compound"
+    ## Joining, by = c("x", "y")
+
+    ## this function returned a list of 4. the first is pairwise correlations filtered for an absolute correlation coefficient more 
+    ##                than  0.8 the second element is annotation information for the compounds, the third and the fourth elements                are similar to the first and the second but fot the subset which was futher filtered to keep the correlations with a 
+    ##                significance less than  0.05
 
 ### prepare data to plot the network with ggplot
 
@@ -578,6 +631,9 @@ set.seed(8889)
 corr_plot_ggplot <- corr_netw_forggplot_function(data_corr_netw[[1]], community_detection = T, netw_layout = 'fr')
 ```
 
+    ## Joining, by = "Compound"
+    ## Joining, by = "Compound"
+    ## Joining, by = "Compound"
 
 ### geom_mark_hull does not make circles when communitues contains only two entries, but works when I specify geom_mark_hull for specifically those communities that contains one entries
 
@@ -638,6 +694,7 @@ netwenzyme <- ggplot(mapping = aes(x=x,y=y)) +
   theme(legend.position = "bottom", legend.text = element_text(size = 8), legend.title = element_blank()) 
 ```
 
+    ## Warning: Duplicated aesthetics after name standardisation: size
 
 ``` r
 ggsave("netwenzyme.svg", width = 2.5, height = 2.5)
@@ -702,6 +759,7 @@ netwsubstrate <- ggplot(mapping = aes(x=x,y=y)) +
   theme(legend.position = "bottom", legend.text = element_text(size = 8), legend.title = element_blank()) 
 ```
 
+    ## Warning: Duplicated aesthetics after name standardisation: size
 
 ``` r
 ggsave("netwsubstrate.svg", width = 2.5, height = 2.5)
@@ -711,6 +769,8 @@ ggsave("netwsubstrate.svg", width = 2.5, height = 2.5)
 corr_plot_ggplot_subs <- corr_netw_forggplot_function(data_corr_netw[[3]], community_detection = F, netw_layout = "stress")
 ```
 
+    ## Joining, by = "Compound"
+    ## Joining, by = "Compound"
 
 ``` r
 netwenzyme_subset <- ggplot(mapping = aes(x=x,y=y)) +
@@ -729,11 +789,87 @@ ggsave("netwenzyme_subset.svg", width = 1.5, height = 1.5)
 ```
 
 ``` r
-p1 <- ggarrange(gb_Hmap, gb_hmap_subset, widths = c(w1, w2), heights = c(h1, h2), labels = c("a"), font.label = list(size = 22, face = 'bold'))
-p2 <- ggarrange(netwenzyme, netwenzyme_subset, widths = c(2.3, 2.1), heights = c(2.6, 2.6), labels = c("c"), font.label = list(size = 22, face = 'bold'))
-p3 <- ggarrange(netwsubstrate, p2, ncol = 2, widths = c(2.3, 4.5), heights = c(2.6,2.6), labels = c("b"), font.label = list(size = 22, face = 'bold'))
+p1 <- ggarrange(gb_Hmap, gb_hmap_subset, widths = c(w1, w2), heights = c(h1, h2), labels = c("A"), font.label = list(size = 17, face = 'bold'))
+p2 <- ggarrange(netwenzyme, netwenzyme_subset, widths = c(2.3, 2.1), heights = c(2.6, 2.6), labels = c("C"), font.label = list(size = 17, face = 'bold'))
+p3 <- ggarrange(netwsubstrate, p2, ncol = 2, widths = c(2.3, 4.5), heights = c(2.6,2.6), labels = c("B"), font.label = list(size = 17, face = 'bold'))
 p4 <- ggarrange(p1, p3, ncol = 1, widths = c(w1+w2, w1+w2), heights = c(h1, 2.6))
-p5 <- ggarrange(p4, boxplot, ncol = 1, widths = c(w1+w2, w1+w2), heights = c(h1+2.5, 3), labels = c("", "d"), font.label = list(size = 22, face = 'bold'))
+p5 <- ggarrange(p4, bar_plot, ncol = 1, widths = c(w1+w2, w1+w2), heights = c(h1+2.5, 3), labels = c("", "D"), font.label = list(size = 17, face = 'bold'))
+```
+
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+    ## No summary function supplied, defaulting to `mean_se()`
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+    ## Warning: Unknown or uninitialised column: `p`.
+
+    ## Warning: Computation failed in `stat_compare_means()`:
+    ## argument "x" is missing, with no default
+
+``` r
 ggsave("correlationfigure.svg", height = h1+2.5+3, width = w1+w2)
 ```
 
