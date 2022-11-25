@@ -393,25 +393,50 @@ gb_hmap_subset = grid.grabExpr(draw(hmap_subset))
 ```
 
 
-## boxplot of interesting features
-```{r}
-subset_data[[5]]$Condition <- factor(subset_data[[5]]$Condition, levels = c("WT", "MIDY"))
+## univariate scatter plot of interesting features
 
-boxplot <- ggplot(subset_data[[5]], aes(x=Condition, y=Concentration, fill = Condition))+
-           geom_boxplot(color = "#888888", outlier.fill = NULL, lwd=0.3,
-                        width=0.8/length(unique(subset_data[[5]]$Condition)))+
+### prepare data 
+```{r}
+# prepare data for error bar calculation
+ratios_error_bar <- subset_data[[5]] %>% 
+group_by(Compound, Condition) %>% 
+summarise(mean = mean(Concentration), 
+          sd = sd(Concentration)) %>% 
+  ungroup()
+
+
+# prepare data for plotting
+data_plot <- subset_data[[5]] %>%  
+left_join(ratios_error_bar)
+```
+
+
+### plot bar chart with data 
+```{r}
+# reorder data
+data_plot$Condition <- factor(data_plot$Condition, levels = c("WT", "MIDY"))
+
+# plot 
+bar_plot <- ggplot(data_plot, aes(x=Condition, y=Concentration))+
+  geom_bar(stat = "summary", fill = "#DCDCDC", alpha = 0.7, color = "black", lwd=0.5,
+           width=0.8/length(unique(data_plot$Condition))) + 
+  stat_summary(aes(group=Compound), fun=mean, geom="line", colour="black")+
+   geom_jitter(size = 1.8,  aes(fill = Condition), shape = 21, width = 0.25) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
   scale_fill_manual(values=c("#0072B2", "firebrick3"))+
   theme_bw()+
-  geom_point(size = 1.4, shape = 21, fill = "#888888") +
   ylab("Lipid concentration (ng/g tissue)")+
   xlab("")+
-  theme(panel.border = element_rect(size=0.8), 
+  theme(panel.border = element_rect(size=0.8, color = "black"),
+        axis.ticks = element_line(colour = "black"),
+        axis.text = element_text(size = 9, colour = "black"),
         axis.title.x = element_text(size = 9, colour = "black"), 
         axis.title.y = element_text(size = 9, colour = "black"), 
         panel.grid =   element_blank())+
   stat_compare_means(data = subset_data[[5]] %>% select(-Concentration) %>% mutate(Concentration = log2conc), 
-                     label.x = 1.7, aes(label = paste0("p = ", ..p.format..)), 
-                     method = "t.test", size = 2, vjust = 1)+
+                     label.x = 2, hjust = 1, aes(label = sprintf("p = %5.2f", as.numeric(..p.format..))),
+                     method = "t.test", size = 2.75, vjust = 2.2, angle =90)+
   facet_wrap(~Compound, scales = "free_y", ncol = 6)+
   theme(legend.position = "bottom", 
         legend.box.spacing = unit(0.8, 'mm'), 
@@ -696,10 +721,10 @@ ggsave("netwenzyme_subset.svg", width = 1.5, height = 1.5)
 ```
 
 ```{r}
-p1 <- ggarrange(gb_Hmap, gb_hmap_subset, widths = c(w1, w2), heights = c(h1, h2), labels = c("a"), font.label = list(size = 22, face = 'bold'))
-p2 <- ggarrange(netwenzyme, netwenzyme_subset, widths = c(2.3, 2.1), heights = c(2.6, 2.6), labels = c("c"), font.label = list(size = 22, face = 'bold'))
-p3 <- ggarrange(netwsubstrate, p2, ncol = 2, widths = c(2.3, 4.5), heights = c(2.6,2.6), labels = c("b"), font.label = list(size = 22, face = 'bold'))
+p1 <- ggarrange(gb_Hmap, gb_hmap_subset, widths = c(w1, w2), heights = c(h1, h2), labels = c("A"), font.label = list(size = 17, face = 'bold'))
+p2 <- ggarrange(netwenzyme, netwenzyme_subset, widths = c(2.3, 2.1), heights = c(2.6, 2.6), labels = c("C"), font.label = list(size = 17, face = 'bold'))
+p3 <- ggarrange(netwsubstrate, p2, ncol = 2, widths = c(2.3, 4.5), heights = c(2.6,2.6), labels = c("B"), font.label = list(size = 17, face = 'bold'))
 p4 <- ggarrange(p1, p3, ncol = 1, widths = c(w1+w2, w1+w2), heights = c(h1, 2.6))
-p5 <- ggarrange(p4, boxplot, ncol = 1, widths = c(w1+w2, w1+w2), heights = c(h1+2.5, 3), labels = c("", "d"), font.label = list(size = 22, face = 'bold'))
+p5 <- ggarrange(p4, bar_plot, ncol = 1, widths = c(w1+w2, w1+w2), heights = c(h1+2.5, 3), labels = c("", "D"), font.label = list(size = 17, face = 'bold'))
 ggsave("correlationfigure.svg", height = h1+2.5+3, width = w1+w2)
 ```
