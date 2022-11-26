@@ -31,15 +31,18 @@ lowerFn <- function(data, mapping, method = "lm", ...) {
 scatter <- ggpairs(
   data[, 1:6], lower = list(continuous = wrap(lowerFn, method = "lm")),
   diag = "blank",
-  upper = list(continuous = wrap("cor", method = "spearman", size = 3))
+  upper = list(continuous = wrap("cor", method = "spearman", size = 3, colour = "black"))
     
 )+
   theme_bw()+
-  theme(panel.grid =element_blank())+
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  theme(strip.text = element_text(size = 9))+
+  theme(panel.border = element_rect(size = 1, colour = "black"),
+        panel.grid =element_blank())+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, colour = "black"),
+        axis.text.y = element_text(colour = "black"))+
+  theme(strip.text = element_text(size = 9, colour = "black"),
+        axis.ticks = element_line(colour = "black"))+
   theme(strip.background = element_blank())+
-  theme(axis.text = element_text(size = 8))
+  theme(axis.text = element_text(size = 9))
 
 plot_grid(
    ggmatrix_gtable(scatter),
@@ -49,5 +52,5 @@ plot_grid(
 ![](scatter-plot-of-SLRPs_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
-ggsave("slrpgcorrplot.svg", width = 4.5, height = 4.5)
+ggsave("slrpgcorrplot.svg", width = 5, height = 5)
 ```
