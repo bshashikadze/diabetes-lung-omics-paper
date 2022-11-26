@@ -13,6 +13,7 @@ Each dataset must be:
 2.  data should be already log2 transformed and should not contain any
     missing values.
 
+
 ### load libraries
 
 ``` r
@@ -29,6 +30,7 @@ library        (ggpubr)
 dir.create("input")
 ```
 
+    ## Warning in dir.create("input"): 'input' already exists
 
 ``` r
 # proteomics
@@ -316,7 +318,7 @@ scale_alpha_manual(values= c('Proteomics' = 0.5, 'Lipidomics'= 1))+
 geom_label_repel(box.padding = unit(0.2, "lines"),
                  point.padding = unit(0.2, "lines"),
                  max.overlaps = Inf,
-                 alpha = 1, color = "black", size =1.8)+
+                 alpha = 1, color = "black", size =2.2)+
 xlab("Component 1")+
 ylab("Component 2")+
 geom_hline(yintercept = 0, linetype = "dashed")+
@@ -343,7 +345,7 @@ geom_segment(aes(x = Axis1_Proteomics, y = Axis2_Proteomics,
                  xend = Axis1_Lipidomics, yend = Axis2_Lipidomics, color = Condition), size =0.5, 
                  data = data_components %>% 
                  pivot_wider(-rowname, names_from = omics, values_from = c(Axis1, Axis2)))+
-geom_text_repel(label = labels$id, colour="black", size = 2.5, box.padding = 0.3)+
+geom_text_repel(label = labels$id, colour="black", size = 3.2, box.padding = 0.3)+
 scale_shape_manual(values = c('Proteomics' = 16, 'Lipidomics' = 15))+
 scale_color_manual(values = c('MIDY' = "firebrick3", 'WT' = "#0072B2"))+
 xlab(paste("Co-inertia axis 1 - ", (round(Coinertia.plot$mcoa$pseudoeig[1]*100)), "%", sep=""))+
@@ -368,14 +370,18 @@ ggsave("output/coinertiaplot.svg", height = 3.4, width = 3.4)
 #### merge plots
 
 ``` r
-ggarrange(coinertiaplot, loadingplot, widths = c(3.4, 3.4),
-          heights = c(3.4,3.4),
-          labels = c("a", "b"), font.label = list(size =22, face = 'bold'),
+ggarrange(coinertiaplot, loadingplot, widths = c(3.55, 3.55),
+          heights = c(3.55,3.55),
+          labels = c("A", "B"), font.label = list(size =17, face = 'bold'),
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
-ggsave("output/multiomicsfigure.svg", width = 6.8, height = 3.4)
 ```
 
+![](CIA_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+
+``` r
+ggsave("output/multiomicsfigure.svg", width = 7.1, height = 3.55)
+```
 
 ``` r
 save.image()
