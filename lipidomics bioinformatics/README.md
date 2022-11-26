@@ -1,10 +1,13 @@
 Multi (uni-) variate analysis of lipidomics data
 ================
-B.Shashikadze
+BS
 21/08/2022
 
 datasets are available in the supplementary tables of the manuscript
 
+
+
+### load libraries
 
 ``` r
 library(tidyverse) 
@@ -194,9 +197,9 @@ geom_vline(xintercept = 0, linetype = "dashed")+
 theme_bw() + 
   theme(panel.border = element_rect(size = 1, colour = "black"),
                    axis.ticks = element_line(colour = "black"), 
-                   axis.title = element_text(size = 9, colour="black"), 
-                   axis.text.x = element_text(size= 9, colour="black"),
-                   axis.text.y = element_text(size = 9, colour="black"),
+                   axis.title = element_text(size = 10, colour="black"), 
+                   axis.text.x = element_text(size= 10, colour="black"),
+                   axis.text.y = element_text(size = 10, colour="black"),
 panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
                       theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), legend.title = element_blank(), legend.text = element_text(size = 9))
 ```
@@ -259,9 +262,9 @@ theme_bw()+
 scale_fill_manual(values = c("firebrick3", "#0072B2"))+
 theme(panel.border = element_rect(size = 1, colour = "black"),
                    axis.ticks = element_line(colour = "black"), 
-                   axis.title = element_text(size = 9, colour="black"), 
-                   axis.text.x = element_text(size= 9, colour="black"),
-                   axis.text.y = element_text(size = 9, colour="black"),
+                   axis.title = element_text(size = 10, colour="black"), 
+                   axis.text.x = element_text(size= 10, colour="black"),
+                   axis.text.y = element_text(size = 10, colour="black"),
 panel.grid.major = element_line(), panel.grid.minor = element_blank())+
 xlab("VIP score")+
 ggtitle("VIP plot") +
@@ -294,9 +297,9 @@ geom_text_repel(
 theme_bw()+
 theme(panel.border = element_rect(size = 1, colour = "black"),
                    axis.ticks = element_line(colour = "black"), 
-                   axis.title = element_text(size = 9, colour="black"), 
-                   axis.text.x = element_text(size= 9, colour="black"),
-                   axis.text.y = element_text(size = 9, colour="black"),
+                   axis.title = element_text(size = 10, colour="black"), 
+                   axis.text.x = element_text(size= 10, colour="black"),
+                   axis.text.y = element_text(size = 10, colour="black"),
 panel.grid.major = element_line(), panel.grid.minor = element_blank())+
 xlab("log2 fold change (MIDY/WT)")+
 ylab("P-value")+
@@ -322,9 +325,9 @@ geom_vline(xintercept = 0, linetype = "dashed")+
 theme_bw() + 
     theme(panel.border = element_rect(size = 1, colour = "black"),
                    axis.ticks = element_line(colour = "black"), 
-                   axis.title = element_text(size = 9, colour="black"), 
-                   axis.text.x = element_text(size= 9, colour="black"),
-                   axis.text.y = element_text(size = 9, colour="black"),
+                   axis.title = element_text(size = 10, colour="black"), 
+                   axis.text.x = element_text(size= 10, colour="black"),
+                   axis.text.y = element_text(size = 10, colour="black"),
 panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
 theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), 
       legend.title = element_blank(), 
@@ -353,7 +356,7 @@ ggarrange(P1,P2,
 ![](lipidomics-bioinformatics_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
-ggsave("lipidomics.svg", height = 6.8, width = 6.8)
+ggsave("lipidomics.svg", height = 7.1, width = 7.1)
 ```
 
 # save
