@@ -67,31 +67,13 @@ pepquantify::resultstidy(data, data2,  fc_threshold = fc_threshold)}
 data_raw <- pepquantify::read_diann(experimental_library = T)
 ```
 
-    ## conditions file was generated. First rename file as: conditions_modified.txt. afterwards,
-    ##          modify ONLY the second column according to the experimental conditions. Do not change the column headers
-
 ``` r
 msempire_data <- pepquantify::pepquantify_funs(data_raw, condition1 = "MIDY", condition2 = "WT", imputation = TRUE)
 ```
 
-    ##  no peptides have met to the imputation criteria. you can relax the parameters or continue without the imputation
-
 ``` r
 msempire_calculation(msempire_data, fc_threshold = 1.5)
 ```
-
-    ## [1] "final error: 0.762846"
-    ## [1] "final error: 0.765543"
-    ## [1] 0.7628458
-    ## [1] 0.7655433
-    ## [1] "detecting mode"
-    ## [1] "mode: -0.2"
-    ## [1] "Final error: 0.761256"
-    ## [1] "numeric" "numeric" "numeric" "numeric" "numeric" "numeric"
-    ## three files were saved in the working directory:
-    ##     1 - msempire_results_raw:     this is the raw results of MS-EmpiRe
-    ##     2 - msempire_results_tidy:    this is the results that has been cleaned-up and can be used in suppl tables
-    ##     3 - msempire_results_volcano: some columns was adjusted to make it suitable for the volcano plot
 
 ### adding extra information to outputs (optional)
 
@@ -117,7 +99,6 @@ combined_additional <- protein_description %>%
   left_join(protein_group)
 ```
 
-    ## Joining, by = "Genes"
 
 ``` r
 # match this information to outputs and save for the supplementary tables
@@ -126,7 +107,6 @@ proteingroups <- read.delim("proteingroups.txt", sep = "\t", header = T) %>%
   write.table("proteingroups_modified.txt", sep = "\t", quote = F, row.names = F)
 ```
 
-    ## Joining, by = "Genes"
 
 ``` r
 msempire      <- read.delim("MIDY_vs_WT/msempire_results_tidy.txt", sep = "\t", header = T) %>% 
