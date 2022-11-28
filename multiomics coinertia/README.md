@@ -338,7 +338,8 @@ ggsave("output/loadingplot.svg", width = 3.4, height = 3.4)
 #### plot co-inertia
 
 ``` r
-labels <- data_components %>% mutate(id = replace(id, duplicated(id), NA)) %>% select(id)
+labels <- data_components %>% mutate(id = replace(id, duplicated(id), NA)) %>% select(id) %>% mutate(id = str_replace(id, "MIDY", "")) %>% 
+  mutate(id = str_replace(id, "WT", ""))
 coinertiaplot <- ggplot(data_components, aes(x=Axis1, y=Axis2, color = Condition))+
 geom_point(aes(shape = omics), size = 2.5) +
 geom_segment(aes(x = Axis1_Proteomics, y = Axis2_Proteomics, 
