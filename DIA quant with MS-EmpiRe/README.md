@@ -46,7 +46,7 @@ file.copy(from = paste0(getwd(), "/DIA-NN_output_precursors.tsv"),
 unlink("DIA-NN_output_precursors.tsv")
 
 # save contaminants-removed data
-write.table(raw_diann_filtered, "MIDY_Lung_DIA.tsv", quote = F, sep = "\t", row.names = F)
+write.table(raw_diann_filtered, "MIDY_Lung_DIA_nocontaminants.tsv", quote = F, sep = "\t", row.names = F)
 ```
 
 ``` r
