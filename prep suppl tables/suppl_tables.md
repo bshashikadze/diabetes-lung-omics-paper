@@ -16,7 +16,7 @@ library(protti)
 ```
 
 ## read uniprot fasta file which was used during DIA-NN search
-
+can be downloaded from ProteomeExchange repository (PXD038014)
 ``` r
 # read fasta file as `Biostrings AAStringSet` object
 fasta_file <- read_proteome("uniprot-proteome_UP000008227_20012022_49792_1438.fasta", obj.type = "Biostrings")
