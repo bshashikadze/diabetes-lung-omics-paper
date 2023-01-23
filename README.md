@@ -11,5 +11,6 @@ R codes to reproduce the statistical analysis and visualization present in the m
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/tree/main/lipidomics%20bioinformatics)  to reproduce figure 4
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/tree/main/multiomics%20coinertia)  to reproduce figure 5
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/correlation%20SLRPs/scatter-plot-of-SLRPs.md)  to reproduce supplementary figure 1
+* [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/prep%20suppl%20tables/suppl_tables.md)  to reproduce supplementary tables
 
 Differential abundance analysis of proteomics data was performed with this [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/DIA%20quant%20with%20MS-EmpiRe/DIA-NN-output-quant-with-MS-EmpiRe.md)
