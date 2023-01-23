@@ -39,7 +39,13 @@ contaminant.names       <- getName(contamintants)
 raw_diann_filtered      <- raw_diann %>% 
   filter(!str_detect(Protein.Group, str_c(contaminant.names, collapse="|")))
 
-# overwrite original file with contaminants filtered file
+# move original file to the separate folder (this is because "pepquantify" will read automatically largest tsv file so it is necessary to leave only filtered data in the main directory)
+dir.create("original")
+file.copy(from = paste0(getwd(), "/DIA-NN_output_precursors.tsv"),
+          to   = paste0(getwd(), "/original/DIA-NN_output_precursors.tsv"))
+unlink("DIA-NN_output_precursors.tsv")
+
+# save contaminants-removed data
 write.table(raw_diann_filtered, "MIDY_Lung_DIA.tsv", quote = F, sep = "\t", row.names = F)
 ```
 
