@@ -77,9 +77,6 @@ data_raw <- pepquantify::read_diann(experimental_library = T)
 
 ``` r
 msempire_data <- pepquantify::pepquantify_funs(data_raw, condition1 = "MIDY", condition2 = "WT", imputation = TRUE)
-```
-
-``` r
 msempire_calculation(msempire_data, fc_threshold = 1.5)
 ```
 
