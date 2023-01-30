@@ -217,4 +217,48 @@ p5 <- ggarrange(p3, p4, ncol = 1, widths = c(6.8,6.8), heights = c(6, 3.5))
 ggsave("proteomics_fig1.svg", width = 6.8, height = 9.5)
 ```
 
+``` r
+# plot bubble plot
+ins_dotplot <- ggplot(data = gene_set_ins, mapping = aes(x = Gene, y = gs_exact_source, fill = l2fc, size = -log10(adj_p_value)))+
+            geom_point(shape=21)+
+              theme_bw() +
+            theme(plot.margin = margin(1,1,1,-3, "mm"))+
+            theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"),
+                            axis.text.x = element_text(angle = 45, colour = "black", size = 9, vjust = 1, hjust = 1),
+                            axis.title = element_text(size= 10, colour = "black"),
+                            axis.text.y = element_text(size = 10, colour = "black"))+
+                      xlab("")+
+                      ylab("")+
+                      theme(plot.title = element_blank()) +
+                      theme(panel.grid.major = element_line(), 
+                            panel.grid.minor = element_blank())+
+                      scale_size_continuous(name = "-log10(FDR)", range = c(2, 4), breaks = c(2,4,6,8))+
+                      scale_fill_gradient(name = "log2 fold change", low = "firebrick3", high = "navy")+
+            theme(legend.position = "bottom", 
+                   legend.justification = "left",
+                   legend.box.spacing = unit(-4, 'mm'), 
+                   legend.title = element_text(size = 9),
+                   legend.text = element_text(size  = 9))+
+                   theme(legend.key.height= unit(5, 'mm'))+
+                      theme(strip.background = element_blank(), strip.text = element_text(size = 10, face = "bold"))
+ggsave("ins_related.svg", width = 6, height = 4)
+
+
+# names for the figure legend
+names_ins <- gene_set_ins %>% 
+  select(gs_name, gs_exact_source) %>% 
+  distinct(gs_name, gs_exact_source) %>% 
+  arrange(factor(gs_exact_source, levels = ggplot_build(ins_dotplot)$layout$panel_params[[1]]$y$get_labels())) %>% 
+  arrange(desc(gs_exact_source)) %>% 
+  mutate(gs_name = str_replace(gs_name, "GOBP_", "")) %>% 
+  mutate(gs_name = str_replace(gs_name, "GOMF_", "")) %>% 
+  mutate(gs_name = str_replace(gs_name, "HP_", "")) %>% 
+  mutate(gs_name = str_replace_all(gs_name, "_", " ")) %>% 
+  mutate(gs_name = str_to_lower(gs_name)) %>% 
+  mutate(gs_name = str_c(gs_exact_source, " (", gs_name, ")")) %>% 
+  select(gs_name) %>% 
+  summarize(gs_name=paste(gs_name,collapse=", "))
+print(names_ins$gs_name)
+```
 
