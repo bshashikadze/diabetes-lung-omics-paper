@@ -11,6 +11,7 @@ library(ggrepel)
 library(ggpubr)
 library(cowplot)
 library(grid)
+library(msigdbr)
 ```
 
 ### load the data
@@ -78,6 +79,9 @@ volcanoplot <- ggplot(msempire_results_volcano %>%
          ylab("-log10 p-value")
 ```
 
+    ## Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
+    ## ℹ Please use the `linewidth` argument instead.
+
 ## dot plot (matrisome proteins)
 
 ### prepare the data
@@ -96,10 +100,10 @@ Matrisome_sig <- matrisome %>%
 ### plot the dot plot
 
 ``` r
-#orderrows based on enrichment score for SKM
+#orderrows based on enrichment score
 Matrisome_sig$Genes <- factor(Matrisome_sig$Genes, levels = Matrisome_sig$Genes
                              [order(Matrisome_sig$Category)])
-dotplot <-  ggplot(Matrisome_sig,  mapping = aes(x = Genes, y= Category, fill = l2fc, size = log10p)) +
+dotplot <-  ggplot(Matrisome_sig,  mapping = aes(x = Genes, y = Category, fill = l2fc, size = log10p)) +
             geom_point(shape=21)+
             theme_bw() +
             theme(plot.margin = margin(1,1,1,-3, "mm"))+
@@ -221,3 +225,71 @@ ggsave("proteomics_fig1.svg", width = 7.1, height = 9.5)
 
     ## Warning: ggrepel: 9 unlabeled data points (too many overlaps). Consider
     ## increasing max.overlaps
+
+## insulin related genes (supplementary figure)
+
+``` r
+# all GO CC terms
+gene_set = msigdbr(species = "human", category = "C5")
+
+# subset for GO:0062023' -> collagen containing ECM
+gene_set_ins <- gene_set %>% 
+  filter(str_detect(gs_name, "INSULIN")) %>% 
+  filter(!str_detect(gs_name, "GROWTH")) %>%
+  select(human_gene_symbol, gs_name, gs_exact_source) %>% 
+  distinct(human_gene_symbol, gs_name, gs_exact_source) %>% 
+  rename(Gene = human_gene_symbol) %>% 
+  mutate(Process = "+") %>%
+  left_join(msempire_results %>% mutate(Gene = accession)) %>% 
+  drop_na() %>% 
+  filter(adj_p_value <= 0.05)
+```
+
+    ## Joining, by = "Gene"
+
+``` r
+# plot bubble plot
+ins_dotplot <- ggplot(data = gene_set_ins, mapping = aes(x = Gene, y = gs_exact_source, fill = l2fc, size = -log10(adj_p_value)))+
+            geom_point(shape=21)+
+              theme_bw() +
+            theme(plot.margin = margin(1,1,1,-3, "mm"))+
+            theme(panel.border = element_rect(size = 1, colour = "black"),
+                   axis.ticks = element_line(colour = "black"),
+                            axis.text.x = element_text(angle = 45, colour = "black", size = 9, vjust = 1, hjust = 1),
+                            axis.title = element_text(size= 10, colour = "black"),
+                            axis.text.y = element_text(size = 10, colour = "black"))+
+                      xlab("")+
+                      ylab("")+
+                      theme(plot.title = element_blank()) +
+                      theme(panel.grid.major = element_line(), 
+                            panel.grid.minor = element_blank())+
+                      scale_size_continuous(name = "-log10(FDR)", range = c(2, 4), breaks = c(2,4,6,8))+
+                      scale_fill_gradient(name = "log2 fold change", low = "firebrick3", high = "navy")+
+            theme(legend.position = "bottom", 
+                   legend.justification = "left",
+                   legend.box.spacing = unit(-4, 'mm'), 
+                   legend.title = element_text(size = 9),
+                   legend.text = element_text(size  = 9))+
+                   theme(legend.key.height= unit(5, 'mm'))+
+                      theme(strip.background = element_blank(), strip.text = element_text(size = 10, face = "bold"))
+ggsave("ins_related.svg", width = 6, height = 4)
+
+
+# names for the figure legend
+names_ins <- gene_set_ins %>% 
+  select(gs_name, gs_exact_source) %>% 
+  distinct(gs_name, gs_exact_source) %>% 
+  arrange(factor(gs_exact_source, levels = ggplot_build(ins_dotplot)$layout$panel_params[[1]]$y$get_labels())) %>% 
+  arrange(desc(gs_exact_source)) %>% 
+  mutate(gs_name = str_replace(gs_name, "GOBP_", "")) %>% 
+  mutate(gs_name = str_replace(gs_name, "GOMF_", "")) %>% 
+  mutate(gs_name = str_replace(gs_name, "HP_", "")) %>% 
+  mutate(gs_name = str_replace_all(gs_name, "_", " ")) %>% 
+  mutate(gs_name = str_to_lower(gs_name)) %>% 
+  mutate(gs_name = str_c(gs_exact_source, " (", gs_name, ")")) %>% 
+  select(gs_name) %>% 
+  summarize(gs_name=paste(gs_name,collapse=", "))
+print(names_ins$gs_name)
+```
+
+    ## [1] "HP:0040214 (abnormal insulin level), HP:0031075 (abnormal response to insulin tolerance test), HP:0008283 (fasting hyperinsulinemia), HP:0000855 (insulin resistance), HP:0000831 (insulin resistant diabetes mellitus), GO:1900078 (positive regulation of cellular response to insulin stimulus), GO:1900076 (regulation of cellular response to insulin stimulus), GO:0061178 (regulation of insulin secretion involved in cellular response to glucose stimulus), GO:0050796 (regulation of insulin secretion), GO:0046626 (regulation of insulin receptor signaling pathway), GO:0035774 (positive regulation of insulin secretion involved in cellular response to glucose stimulus), GO:0035773 (insulin secretion involved in cellular response to glucose stimulus), GO:0032869 (cellular response to insulin stimulus), GO:0032868 (response to insulin), GO:0032024 (positive regulation of insulin secretion), GO:0030073 (insulin secretion), GO:0008286 (insulin receptor signaling pathway), GO:0005158 (insulin receptor binding)"
