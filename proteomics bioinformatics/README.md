@@ -217,6 +217,27 @@ p5 <- ggarrange(p3, p4, ncol = 1, widths = c(6.8,6.8), heights = c(6, 3.5))
 ggsave("proteomics_fig1.svg", width = 6.8, height = 9.5)
 ```
 
+## insulin related genes (supplementary figure)
+
+``` r
+# all GO CC terms
+gene_set = msigdbr(species = "human", category = "C5")
+
+# subset for GO:0062023' -> collagen containing ECM
+gene_set_ins <- gene_set %>% 
+  filter(str_detect(gs_name, "INSULIN")) %>% 
+  filter(!str_detect(gs_name, "GROWTH")) %>%
+  select(human_gene_symbol, gs_name, gs_exact_source) %>% 
+  distinct(human_gene_symbol, gs_name, gs_exact_source) %>% 
+  rename(Gene = human_gene_symbol) %>% 
+  mutate(Process = "+") %>%
+  left_join(msempire_results %>% mutate(Gene = accession)) %>% 
+  drop_na() %>% 
+  filter(adj_p_value <= 0.05)
+```
+
+    ## Joining, by = "Gene"
+
 ``` r
 # plot bubble plot
 ins_dotplot <- ggplot(data = gene_set_ins, mapping = aes(x = Gene, y = gs_exact_source, fill = l2fc, size = -log10(adj_p_value)))+
