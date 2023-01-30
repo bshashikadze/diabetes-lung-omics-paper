@@ -5,8 +5,8 @@ Proteomics dataset can be downloaded from [ProteomeExchange](http://www.proteome
 Lipidomics dataset can be found in supplementary materials of the paper
 
 R codes to reproduce the statistical analysis and visualization present in the manuscript
-* [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/proteomics%20bioinformatics/proteomics-bioinformatics.md) to reproduce figure 1
-* [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/Quantitative%20histomorphological%20analyses/Quantitative-histomorphology.md) to reproduce figure 2 (and supplementary figure 2)
+* [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/proteomics%20bioinformatics/proteomics-bioinformatics.md) to reproduce figure 1 (and supplementary figure 2)
+* [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/Quantitative%20histomorphological%20analyses/Quantitative-histomorphology.md) to reproduce figure 2 (and supplementary figure 3)
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/correlation%20heatmap%20and%20network%20lipid/lipidomics_correlation.md) to reproduce figure 3
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/tree/main/lipidomics%20bioinformatics)  to reproduce figure 4
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/tree/main/multiomics%20coinertia)  to reproduce figure 5
