@@ -88,7 +88,7 @@ protein_description <- diann_filtered %>%
   summarize(First.Protein.Description=paste(First.Protein.Description,collapse=";")) %>% 
   ungroup()
 
-# get unique protein descriptions (distinct protein names for the same genes will be aggregated in one row separated by semicolon)
+# get unique protein groups (distinct protein protein groups for the same genes will be aggregated in one row separated by semicolon)
 protein_group <- diann_filtered %>% 
   dplyr::select(Genes, Protein.Group) %>% 
   dplyr::distinct(Genes, Protein.Group, .keep_all = T) %>% 
