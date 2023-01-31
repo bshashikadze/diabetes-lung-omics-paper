@@ -3,8 +3,6 @@ DIA proteomics (from DIA-NN) analysis with an MS-EmpiRe
 BS
 09/10/2022
 
-dataset can be downloaded from [ProteomeExchange](http://www.proteomexchange.org/) repository (dataset identifier - PXD038014)
-
 initially directory should only contain the main output of DIA-NN and
 contaminats fasta file from MaxQuant (latter only necessary if it was
 used during DIA-NN search)
@@ -28,7 +26,7 @@ supported by pepquantify package is necessary, e.g. filtering for
 contaminats
 
 ``` r
-raw_diann <- read.delim("DIA-NN_output_precursors.tsv", sep = "\t", header = T) 
+raw_diann <- read.delim("DIA-NN_output_precursors.tsv", sep = "\t", header = T) #can be downloaded from github
 ```
 
 ### remove contaminants (contaminants fasta file from MaxQuant common contaminants)
@@ -41,13 +39,19 @@ raw_diann_filtered      <- raw_diann %>%
 
 # move original file to the separate folder (this is because "pepquantify" will read automatically largest tsv file so it is necessary to leave only filtered data in the main directory)
 dir.create("original")
+
 file.copy(from = paste0(getwd(), "/DIA-NN_output_precursors.tsv"),
           to   = paste0(getwd(), "/original/DIA-NN_output_precursors.tsv"))
+
 unlink("DIA-NN_output_precursors.tsv")
 
 # save contaminants-removed data
 write.table(raw_diann_filtered, "MIDY_Lung_DIA_nocontaminants.tsv", quote = F, sep = "\t", row.names = F)
 ```
+
+## pepquantify + MS-EmpiRe
+
+### functions which performs MS-EmpiRe normalization and quanfications
 
 ``` r
 msempire_calculation <- function(data, data2 = data_raw, seed=1234, fc_threshold = 1.5) {
@@ -71,8 +75,22 @@ msempire_calculation <- function(data, data2 = data_raw, seed=1234, fc_threshold
 pepquantify::resultstidy(data, data2,  fc_threshold = fc_threshold)}
 ```
 
+## load data and filter
+
 ``` r
-data_raw <- pepquantify::read_diann(experimental_library = T)
+data_raw <- pepquantify::read_diann(Q_Val                    = 0.01, 
+                                    Global_Q_Val             = 0.01,
+                                    Global_PG_Q_Val          = 0.01,
+                                    experimental_library     = T,
+                                    unique_peptides_only     = TRUE,
+                                    Quant_Qual               = 0.5,
+                                    id_column                = "Genes", 
+                                    second_id_column         = "Protein.Group", 
+                                    quantity_column          = "Genes.MaxLFQ.Unique", 
+                                    for_msempire             = T,
+                                    sum_charge               = TRUE, 
+                                    save_supplementary       = TRUE,  
+                                    include_mod_in_pepreport = T)
 ```
 
 ``` r
