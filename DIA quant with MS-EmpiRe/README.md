@@ -93,6 +93,7 @@ data_raw <- pepquantify::read_diann(Q_Val                    = 0.01,
                                     include_mod_in_pepreport = T)
 ```
 
+## normalization and quantification
 ``` r
 msempire_data <- pepquantify::pepquantify_funs(data_raw, condition1 = "MIDY", condition2 = "WT", imputation = TRUE)
 msempire_calculation(msempire_data, fc_threshold = 1.5)
