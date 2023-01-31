@@ -16,7 +16,9 @@ library(protti)
 ```
 
 ## read uniprot fasta file which was used during DIA-NN search
+
 can be downloaded from ProteomeExchange repository (PXD038014)
+
 ``` r
 # read fasta file as `Biostrings AAStringSet` object
 fasta_file <- read_proteome("uniprot-proteome_UP000008227_20012022_49792_1438.fasta", obj.type = "Biostrings")
@@ -31,101 +33,29 @@ fasta_df <- as.data.frame(fasta_file) %>%
 rm(fasta_file)
 ```
 
-## read proteingroups and peptides file (output of pepquantify) and main output of DIA-NN (DIA-NN output)
+## read proteingroups and peptides file (output of pepquantify)
 
 ``` r
 proteingroups_data  <- read.delim("../DIA quant with MS-EmpiRe/proteingroups.txt")
 peptides_data       <- read.delim("../DIA quant with MS-EmpiRe/peptides.txt")
-diann_filtered      <- read.delim("../DIA quant with MS-EmpiRe/diannoutput_filtered.tsv") # contaminants were removed
 ```
 
-## extract specific columns from precursor level data (charge states and modifications not aggregated)
-
-modifications, charges, q values (precursors and proteins groups),
-protein names and uniprot accessions 1. charges will be aggregated for
-the same stripped sequence (semicolon separated) 2. protein names and
-protein groups will be aggregated for the same gene (semicolon
-separated)
+## tidy the peptide file
 
 ``` r
-# modifications (only "Carbamidomethyl (C)" was chosen during DIA-NN search as a fixed modification)
-precursors_data_modification <- diann_filtered %>% 
-  select(Modified.Sequence, Stripped.Sequence) %>% 
-  mutate(mod = str_extract_all(Modified.Sequence,"(?<=\\().+(?=\\))")) %>% 
-  mutate(mod = case_when(mod == "UniMod:4" ~ "Carbamidomethyl (C)", TRUE ~ "")) %>%  
-  distinct(Stripped.Sequence, mod, .keep_all = T) %>% 
-  group_by(Stripped.Sequence) %>% 
-  summarize(mod=paste(mod,collapse=";")) %>% 
-  ungroup()
-
-# q values separately for each charge state
-precursors_data_qvalue <- diann_filtered %>% 
-  select(Modified.Sequence, Stripped.Sequence, Global.Q.Value) %>% 
-  distinct(Stripped.Sequence, Global.Q.Value, .keep_all = T) %>% 
-  group_by(Stripped.Sequence) %>% 
-  summarize(Global.Q.Value=paste(Global.Q.Value,collapse=";")) %>% 
-  ungroup()
-
-# charges
-precursors_data_charge <- diann_filtered %>% 
-  select(Modified.Sequence, Stripped.Sequence, Precursor.Charge) %>% 
-  mutate(Precursor.Charge = str_c("+", Precursor.Charge)) %>% 
-  distinct(Stripped.Sequence, Precursor.Charge, .keep_all = T) %>% 
-  group_by(Stripped.Sequence) %>% 
-  summarize(Precursor.Charge=paste(Precursor.Charge,collapse=";")) %>% 
-  ungroup() 
-
-# aggregate data
-prec_uggregated <- precursors_data_modification %>% 
-  left_join(precursors_data_qvalue) %>% 
-  left_join(precursors_data_charge)
-
-# get unique protein descriptions (distinct protein names for the same genes will be aggregated in one row separated by semicolon)
-protein_description <- diann_filtered %>% 
-  dplyr::select(Genes, First.Protein.Description) %>% 
-  dplyr::distinct(Genes, First.Protein.Description, .keep_all = T) %>% 
-  dplyr::group_by(Genes) %>% 
-  summarize(First.Protein.Description=paste(First.Protein.Description,collapse=";")) %>% 
-  ungroup()
-
-# get unique protein groups (distinct protein protein groups for the same genes will be aggregated in one row separated by semicolon)
-protein_group <- diann_filtered %>% 
-  dplyr::select(Genes, Protein.Group) %>% 
-  dplyr::distinct(Genes, Protein.Group, .keep_all = T) %>% 
-  dplyr::group_by(Genes) %>% 
-  summarize(Protein.Group=paste(Protein.Group,collapse=";")) %>% 
-  ungroup
-
-# combine
-names_uggregated <- protein_description %>% 
-  left_join(protein_group)
-```
-
-
-## add extra information to the peptide file
-
-``` r
-# add protein groups and protein description and precursors data (data from previous chunk)
-peptides_data <- peptides_data %>% 
-  left_join(names_uggregated) %>% 
-  left_join(prec_uggregated)
-
 # prepare for the supplementary data
 peptides_data_suppl <- peptides_data %>% 
   mutate("Mass (theoretical)" = Peptides::mw(Stripped.Sequence, monoisotopic = T)) %>% 
-  select(Stripped.Sequence, Genes, Protein.Group, First.Protein.Description, mod, Precursor.Charge, 
-         Global.Q.Value,"Mass (theoretical)", starts_with("Precursor")) %>% 
+  select(Stripped.Sequence, Genes, Protein.Group, First.Protein.Description, Modification, Charge, 
+         Q.value, "Mass (theoretical)", starts_with("Precursor")) %>% 
   dplyr::rename("Stripped sequence" = Stripped.Sequence,
                 "Protein group"     = Protein.Group,
                 "First protein description"           = First.Protein.Description,
-                Modification        = mod,
-                Charge              = Precursor.Charge,
-                "Q-value"           = Global.Q.Value) %>% 
+                Modification        = Modification) %>% 
   rename_all(~str_replace(., "Precursor.Quantity_", "Intensity.")) %>% 
   rename_all(~str_replace(., "Precursor.Normalised_", "Normalized.intensity."))
 ```
 
-## calculate sequence coverage
 
 ``` r
 # list of identified proteins (only first accession)
@@ -152,10 +82,10 @@ seq_cov <- calculate_sequence_coverage(
 
 # add protein groups
 seq_cov <- seq_cov %>% 
-  left_join(peptides_data %>% select(Stripped.Sequence, Protein.Group)) %>% 
-  select(coverage, Protein.Group) %>% 
-  dplyr::distinct(coverage, Protein.Group, .keep_all = T) %>% 
-  mutate(first_prot = str_remove(Protein.Group, ";.*")) 
+  left_join(peptides_data %>% select(Stripped.Sequence, Protein.Group, Genes)) %>% 
+  select(coverage, Genes) %>% 
+  group_by(Genes) %>%
+  summarise(coverage   = max(coverage))
 ```
 
 
@@ -164,18 +94,16 @@ seq_cov <- seq_cov %>%
 ``` r
 # add sequence coverage to protein groups
 proteingroups_suppl <- proteingroups_data %>% 
-  left_join(names_uggregated) %>% 
-  mutate(first_prot = str_remove(Protein.Group, ";.*")) %>% 
-  left_join(seq_cov %>% select(-Protein.Group)) %>% 
-  select(Genes, Protein.Group, First.Protein.Description, n_pep, coverage, pg_Q_Val, contains("MIDY"), contains("WT")) %>% 
+  left_join(seq_cov) %>% 
+  select(Genes, second_ids, First.Protein.Description, n_pep, coverage, pg_Q_Val, contains("MIDY"), contains("WT")) %>% 
   rowwise() %>% 
   mutate(total = sum(na.rm = T, c_across(contains("LFQ")))) %>% 
   arrange(desc(total)) %>% 
   select(-total) %>% 
-  dplyr::rename("Protein group"      = Protein.Group,
-         "First protein name" = First.Protein.Description,
-         "Unique peptides"    = n_pep,
-         "Q-value"            = pg_Q_Val,
+  dplyr::rename("Protein group"       = second_ids,
+         "First protein name"         = First.Protein.Description,
+         "Unique peptides"            = n_pep,
+         "Q-value"                    = pg_Q_Val,
          "Unique sequence coverage %" = coverage)
 ```
 
