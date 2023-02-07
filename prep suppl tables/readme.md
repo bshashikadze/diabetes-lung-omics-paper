@@ -56,10 +56,8 @@ peptides_data_suppl <- peptides_data %>%
   rename_all(~str_replace(., "Precursor.Normalised_", "Normalized.intensity."))
  ```
  
-
-``` r
 ## calculate sequence coverage using protti package 
-
+``` r
 # list of identified proteins (only first accession)
 seq_cov_data <- peptides_data %>%
   select(Stripped.Sequence, Protein.Group) %>% 
