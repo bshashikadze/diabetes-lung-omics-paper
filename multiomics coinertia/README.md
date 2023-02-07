@@ -30,8 +30,6 @@ library        (ggpubr)
 dir.create("input")
 ```
 
-    ## Warning in dir.create("input"): 'input' already exists
-
 ``` r
 # proteomics
 pg_data  <- read.delim("proteingroups.txt", sep = "\t", header = T)
@@ -127,8 +125,6 @@ generate_Conditions_function <- function() {
 generate_Conditions_function()
 ```
 
-    ## sampleMetadata file was generated in the tmp folder. modify only Conditions column (second column) 
-    ##       and copy it in all omics folders without renaming
 
 ### join omics data frames
 
@@ -165,15 +161,11 @@ Condition.vc <- pdata.df[,"Condition"]
 print(table(Condition.vc)) 
 ```
 
-    ## Condition.vc
-    ## MIDY   WT 
-    ##    4    5
 
 ``` r
 cat("check if Conditions are correctly assigned in the printed table above")
 ```
 
-    ## check if Conditions are correctly assigned in the printed table above
 
 ### co-inertia calculation
 
@@ -185,17 +177,12 @@ Coinertia.plot <- omicade4::mcia(Coinertia.data,)
 omicade4::plot.mcia(Coinertia.plot, axes = 1:2,
                     phenovec = Condition.vc,
                     sample.lab = T, gene.nlab = 7, df.color=1:2)
-```
 
-![](CIA_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
-
-``` r
 # extract RV
 RV.obs <- Coinertia.plot[["mcoa"]][["RV"]][2]
 cat("The RV coefficient of this coinertia analysis is:", RV.obs[1])
 ```
 
-    ## The RV coefficient of this coinertia analysis is: 0.7808358
 
 ### permutation based significance calculation
 
@@ -216,8 +203,6 @@ create_folder_function <- function() {
 # apply the function
 create_folder_function()
 ```
-
-    ## [1] FALSE FALSE
 
 ``` r
 # permutation
@@ -252,17 +237,12 @@ RV.rand <- replicate (n = n_perm, cia_permutation_function())
 RVs <- c (RV.rand, RV.obs)
 hist (RVs, nclass = 100)  
 abline (v = RV.obs, col = 'red')  # red line to indicate where in the histogram is the observed value
-```
 
-![](CIA_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
-
-``` r
 # calculate p-value
 P_RV_permuted <- sum (RVs >= RV.obs)/(n_perm + 1)
 cat("Permutation based p-value is", P_RV_permuted[1])
 ```
 
-    ## Permutation based p-value is 0.04191617
 
 ### extract data for plotting
 
@@ -301,7 +281,6 @@ components_for_plotting_function <- function() {
 data_components <- components_for_plotting_function()
 ```
 
-    ## Joining, by = "id"
 
 ### plotting
 
@@ -365,8 +344,6 @@ theme(legend.position = "top",
       legend.text = element_text(size = 9))
 ggsave("output/coinertiaplot.svg", height = 3.4, width = 3.4)
 ```
-
-    ## Warning: Removed 9 rows containing missing values (geom_text_repel).
 
 #### merge plots
 
