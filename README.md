@@ -5,7 +5,7 @@ Proteomics dataset can be downloaded from [ProteomeExchange](http://www.proteome
 Lipidomics dataset can be found in supplementary materials of the paper
 
 R scripts to reproduce the statistical analysis and visualization present in the manuscript
-* [code]([https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/proteomics%20bioinformatics/proteomics-bioinformatics.md](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/proteomics%20bioinformatics/proteomics%20bioinformatics.Rmd)) to reproduce figure 1 (and supplementary figure 2)
+* [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/proteomics%20bioinformatics/proteomics%20bioinformatics.Rmd)) to reproduce figure 1 (and supplementary figure 2)
 * [code]([https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/Quantitative%20histomorphological%20analyses/Quantitative-histomorphology.md](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/Quantitative%20histomorphological%20analyses/Quantitative%20histomorphology.Rmd)) to reproduce figure 2 (and supplementary figure 3)
 * [code]([https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/correlation%20heatmap%20and%20network%20lipid/lipidomics_correlation.md](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/correlation%20heatmap%20and%20network%20lipid/lipidomics_correlation.Rmd)) to reproduce figure 3
 * [code]([https://github.com/bshashikadze/diabetes-lung-omics-paper/tree/main/lipidomics%20bioinformatics](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/lipidomics%20bioinformatics/lipidomics%20bioinformatics.Rmd))  to reproduce figure 4
