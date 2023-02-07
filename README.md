@@ -4,7 +4,7 @@ Proteomics dataset can be downloaded from [ProteomeExchange](http://www.proteome
 
 Lipidomics dataset can be found in supplementary materials of the paper
 
-R codes to reproduce the statistical analysis and visualization present in the manuscript
+R scripts to reproduce the statistical analysis and visualization present in the manuscript
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/proteomics%20bioinformatics/proteomics-bioinformatics.md) to reproduce figure 1 (and supplementary figure 2)
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/Quantitative%20histomorphological%20analyses/Quantitative-histomorphology.md) to reproduce figure 2 (and supplementary figure 3)
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/correlation%20heatmap%20and%20network%20lipid/lipidomics_correlation.md) to reproduce figure 3
@@ -13,4 +13,4 @@ R codes to reproduce the statistical analysis and visualization present in the m
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/correlation%20SLRPs/scatter-plot-of-SLRPs.md)  to reproduce supplementary figure 1
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/prep%20suppl%20tables/suppl_tables.md)  to reproduce supplementary tables
 
-Differential abundance analysis of proteomics data was performed using [MS-EmpiRe](https://github.com/zimmerlab/MS-EmpiRe) and [pepquantify](https://github.com/bshashikadze/pepquantify) ([code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/DIA%20quant%20with%20MS-EmpiRe/DIA_NN_output_quant_with_MS_EmpiRe.Rmd))
+Differential abundance analysis of proteomics data was performed using [MS-EmpiRe](https://github.com/zimmerlab/MS-EmpiRe) and [pepquantify](https://github.com/bshashikadze/pepquantify) ([script](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/DIA%20quant%20with%20MS-EmpiRe/DIA_NN_output_quant_with_MS_EmpiRe.Rmd))
