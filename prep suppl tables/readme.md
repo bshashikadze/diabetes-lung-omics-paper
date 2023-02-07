@@ -54,6 +54,11 @@ peptides_data_suppl <- peptides_data %>%
                 Modification        = Modification) %>% 
   rename_all(~str_replace(., "Precursor.Quantity_", "Intensity.")) %>% 
   rename_all(~str_replace(., "Precursor.Normalised_", "Normalized.intensity."))
+ ```
+ 
+
+``` r
+## calculate sequence coverage using protti package 
 
 # list of identified proteins (only first accession)
 seq_cov_data <- peptides_data %>%
@@ -70,16 +75,12 @@ fasta_df <- fasta_df %>%
 seq_cov_data <- seq_cov_data %>% 
   left_join(fasta_df %>% select(sequence, protein), by = c("first_protein" = "protein")) %>% 
   select(Stripped.Sequence, sequence)
- ```
- 
-## calculate sequence coverage using protti package
-``` r
+
 seq_cov <- calculate_sequence_coverage(
   seq_cov_data,
   protein_sequence = sequence,
   peptides = Stripped.Sequence)
 
-# add protein groups
 seq_cov <- seq_cov %>% 
   left_join(peptides_data %>% select(Stripped.Sequence, Protein.Group, Genes)) %>% 
   select(coverage, Genes) %>% 
