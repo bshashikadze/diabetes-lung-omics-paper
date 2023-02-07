@@ -54,10 +54,7 @@ peptides_data_suppl <- peptides_data %>%
                 Modification        = Modification) %>% 
   rename_all(~str_replace(., "Precursor.Quantity_", "Intensity.")) %>% 
   rename_all(~str_replace(., "Precursor.Normalised_", "Normalized.intensity."))
-```
 
-
-``` r
 # list of identified proteins (only first accession)
 seq_cov_data <- peptides_data %>%
   select(Stripped.Sequence, Protein.Group) %>% 
