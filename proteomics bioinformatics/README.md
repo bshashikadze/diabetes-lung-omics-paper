@@ -234,11 +234,7 @@ gene_set_ins <- gene_set %>%
   left_join(msempire_results %>% mutate(Gene = accession)) %>% 
   drop_na() %>% 
   filter(adj_p_value <= 0.05)
-```
 
-    ## Joining, by = "Gene"
-
-``` r
 # plot bubble plot
 ins_dotplot <- ggplot(data = gene_set_ins, mapping = aes(x = Gene, y = gs_exact_source, fill = l2fc, size = -log10(adj_p_value)))+
             geom_point(shape=21)+
