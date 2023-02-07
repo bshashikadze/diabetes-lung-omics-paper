@@ -70,8 +70,10 @@ fasta_df <- fasta_df %>%
 seq_cov_data <- seq_cov_data %>% 
   left_join(fasta_df %>% select(sequence, protein), by = c("first_protein" = "protein")) %>% 
   select(Stripped.Sequence, sequence)
-
-# calculate sequence coverage using protti package
+ ```
+ 
+``` r
+## calculate sequence coverage using protti package
 seq_cov <- calculate_sequence_coverage(
   seq_cov_data,
   protein_sequence = sequence,
