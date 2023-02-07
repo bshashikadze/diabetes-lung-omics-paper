@@ -72,8 +72,8 @@ seq_cov_data <- seq_cov_data %>%
   select(Stripped.Sequence, sequence)
  ```
  
-``` r
 ## calculate sequence coverage using protti package
+``` r
 seq_cov <- calculate_sequence_coverage(
   seq_cov_data,
   protein_sequence = sequence,
