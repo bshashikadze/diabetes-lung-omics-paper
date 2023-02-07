@@ -45,7 +45,7 @@ write.table(raw_diann_filtered, "MIDY_Lung_DIA_nocontaminants.tsv", quote = F, s
 
 
 ## quantification
-### functions which performs MS-EmpiRe normalization and quanfications
+### function which performs MS-EmpiRe normalization and quanfications
 ```{r}
 msempire_calculation <- function(data, data2 = data_raw, seed=1234, fc_threshold = 1.5) {
   

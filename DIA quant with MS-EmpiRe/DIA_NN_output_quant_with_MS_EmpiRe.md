@@ -39,6 +39,11 @@ raw_diann_filtered      <- raw_diann %>%
 
 # move original file to the separate folder (this is because "pepquantify" will read automatically largest tsv file so it is necessary to leave only filtered data in the main directory)
 dir.create("original")
+```
+
+    ## Warning in dir.create("original"): 'original' already exists
+
+``` r
 file.copy(from = paste0(getwd(), "/DIA-NN_output_precursors.tsv"),
           to   = paste0(getwd(), "/original/DIA-NN_output_precursors.tsv"))
 ```
@@ -54,7 +59,7 @@ write.table(raw_diann_filtered, "MIDY_Lung_DIA_nocontaminants.tsv", quote = F, s
 
 ## quantification
 
-### functions which performs MS-EmpiRe normalization and quanfications
+### function which performs MS-EmpiRe normalization and quanfications
 
 ``` r
 msempire_calculation <- function(data, data2 = data_raw, seed=1234, fc_threshold = 1.5) {
