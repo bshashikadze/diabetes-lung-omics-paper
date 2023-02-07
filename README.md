@@ -13,4 +13,4 @@ R codes to reproduce the statistical analysis and visualization present in the m
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/correlation%20SLRPs/scatter-plot-of-SLRPs.md)  to reproduce supplementary figure 1
 * [code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/prep%20suppl%20tables/suppl_tables.md)  to reproduce supplementary tables
 
-Differential abundance analysis of proteomics data was performed using [MS-EmpiRe](https://github.com/zimmerlab/MS-EmpiRe) and [pepquantify](https://github.com/bshashikadze/pepquantify) ([code])(https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/DIA%20quant%20with%20MS-EmpiRe/DIA_NN_output_quant_with_MS_EmpiRe.Rmd)
+Differential abundance analysis of proteomics data was performed using [MS-EmpiRe](https://github.com/zimmerlab/MS-EmpiRe) and [pepquantify](https://github.com/bshashikadze/pepquantify) ([code](https://github.com/bshashikadze/diabetes-lung-omics-paper/blob/main/DIA%20quant%20with%20MS-EmpiRe/DIA_NN_output_quant_with_MS_EmpiRe.Rmd)
