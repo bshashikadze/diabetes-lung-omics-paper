@@ -153,7 +153,6 @@ revigo_data_filtered <- revigo_data %>%
   mutate(log10FDR = -log10(false.discovery.rate))
 ```
 
-    ## Joining, by = "TermID"
 
 ### plot
 
