@@ -81,7 +81,6 @@ seq_cov <- calculate_sequence_coverage(
   protein_sequence = sequence,
   peptides = Stripped.Sequence)
 
-# add protein groups
 seq_cov <- seq_cov %>% 
   left_join(peptides_data %>% select(Stripped.Sequence, Protein.Group, Genes)) %>% 
   select(coverage, Genes) %>% 
