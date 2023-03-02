@@ -101,7 +101,7 @@ Matrisome_sig <- matrisome %>%
 #orderrows based on enrichment score
 Matrisome_sig$Genes <- factor(Matrisome_sig$Genes, levels = Matrisome_sig$Genes
                              [order(Matrisome_sig$Category)])
-dotplot <-  ggplot(Matrisome_sig,  mapping = aes(x = Genes, y = Category, fill = l2fc, size = log10p)) +
+dotplot <-  ggplot(Matrisome_sig,  mapping = aes(x = Genes, y = Category, fill = l2fc, size = -log10(adj_p_value))) +
             geom_point(shape=21)+
             theme_bw() +
             theme(plot.margin = margin(1,1,1,-3, "mm"))+
