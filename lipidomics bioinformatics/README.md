@@ -52,7 +52,6 @@ write.table(Groups, "conditions.txt", row.names = F, quote = F, sep = "\t")
 cat("conditions file was generated rename the file as Groups_modified, and modify the second column according to groups")
 ```
 
-    ## conditions file was generated rename the file as Groups_modified, and modify the second column according to groups
 
 ### read modified Groups file
 
@@ -136,15 +135,6 @@ statistic_function <- function(data, conditions_data, condition, parametric = TR
 statistics_data <- statistic_function(data_raw, Groups, condition = "Condition", parametric = TRUE, first_group = "MIDY", padjmethod = "none", id_name = "Compound", values_log = F)
 ```
 
-    ## Joining, by = "Bioreplicate"
-    ## `summarise()` has grouped output by 'Compound'. You can override using the
-    ## `.groups` argument.
-
-    ## positive fold change means up in MIDY
-
-    ## Joining, by = "Compound"
-
-    ## p-values were adjusted using the none method
 
 ## multivariate analysis
 
@@ -181,7 +171,6 @@ pca_function <- function(data) {
 data_pca <- pca_function(data_multi)
 ```
 
-    ## Joining, by = "Bioreplicate"
 
 ### principal component analysis (plotting)
 
@@ -242,15 +231,6 @@ set.seed(123456)
 data_oplsda <- oplsda_function(data_multi, scaling = "pareto", n_perm = 200, n_crossval = 9, vip_thresh = 1.5)
 ```
 
-    ## OPLS-DA
-    ## 9 samples x 85 variables and 1 response
-    ## pareto scaling of predictors and standard scaling of response(s)
-    ##       R2X(cum) R2Y(cum) Q2(cum)  RMSEE pre ort  pR2Y   pQ2
-    ## Total    0.709    0.991   0.635 0.0627   1   2 0.095 0.045
-
-    ## Joining, by = "Compound"
-
-![](lipidomics-bioinformatics_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ### variance importance in projection (plotting)
 
@@ -353,7 +333,6 @@ ggarrange(P1,P2,
           ncol = 1, nrow = 2, widths = c(6.8, 6.8), heights = c(6.8, 6.8))
 ```
 
-![](lipidomics-bioinformatics_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 ggsave("lipidomics.svg", height = 7.1, width = 7.1)
