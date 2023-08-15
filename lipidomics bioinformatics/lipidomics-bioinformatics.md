@@ -132,13 +132,13 @@ statistic_function <- function(data, conditions_data, condition, parametric = TR
 statistics_data <- statistic_function(data_raw, Groups, condition = "Condition", parametric = TRUE, first_group = "MIDY", padjmethod = "none", id_name = "Compound", values_log = F)
 ```
 
-    ## Joining, by = "Bioreplicate"
+    ## Joining with `by = join_by(Bioreplicate)`
     ## `summarise()` has grouped output by 'Compound'. You can override using the
     ## `.groups` argument.
 
     ## positive fold change means up in MIDY
 
-    ## Joining, by = "Compound"
+    ## Joining with `by = join_by(Compound)`
 
     ## p-values were adjusted using the none method
 
@@ -177,7 +177,7 @@ pca_function <- function(data) {
 data_pca <- pca_function(data_multi)
 ```
 
-    ## Joining, by = "Bioreplicate"
+    ## Joining with `by = join_by(Bioreplicate)`
 
 ### principal component analysis (plotting)
 
@@ -199,6 +199,12 @@ theme_bw() +
 panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
                       theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'), legend.title = element_blank(), legend.text = element_text(size = 9))
 ```
+
+    ## Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
+    ## ℹ Please use the `linewidth` argument instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
 
 ### Orthogonal Projections to Latent Structures Discriminant Analysis (OPLS-DA) (calculations)
 
@@ -244,7 +250,7 @@ data_oplsda <- oplsda_function(data_multi, scaling = "pareto", n_perm = 200, n_c
     ##       R2X(cum) R2Y(cum) Q2(cum)  RMSEE pre ort  pR2Y   pQ2
     ## Total    0.709    0.991   0.635 0.0627   1   2 0.095 0.045
 
-    ## Joining, by = "Compound"
+    ## Joining with `by = join_by(Compound)`
 
 ![](lipidomics-bioinformatics_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
@@ -354,6 +360,116 @@ ggarrange(P1,P2,
 ``` r
 ggsave("lipidomics.svg", height = 7.1, width = 7.1)
 ```
+
+# supplementary figure + table (precursors)
+
+``` r
+data_precursors <- read.delim("lipidomics_precursors.txt", header = TRUE) %>% 
+    rename_all(~str_replace(., "MIDY", "")) %>% 
+    rename_all(~str_replace(., "WT", ""))
+
+# class of each column
+sapply(data_precursors, class)
+```
+
+    ##    Compound         737         739         740         744         736 
+    ## "character"   "numeric"   "numeric"   "numeric"   "numeric"   "numeric" 
+    ##         738         741         743         745 
+    ##   "numeric"   "numeric"   "numeric"   "numeric"
+
+``` r
+precursors_statistics_data <- statistic_function(data_precursors, Groups, condition = "Condition", parametric = TRUE, first_group = "MIDY", padjmethod = "none", id_name = "Compound", values_log = F)
+```
+
+    ## Joining with `by = join_by(Bioreplicate)`
+    ## `summarise()` has grouped output by 'Compound'. You can override using the
+    ## `.groups` argument.
+
+    ## positive fold change means up in MIDY
+
+    ## Joining with `by = join_by(Compound)`
+
+    ## p-values were adjusted using the none method
+
+``` r
+# prepare data for error bar calculation
+precursors_error_bar <- data_precursors %>% 
+  pivot_longer(names_to = "Bioreplicate", values_to = "Concentration", -Compound) %>% 
+  left_join(Groups) %>% 
+  group_by(Compound, Condition) %>% 
+  summarise(mean = mean(Concentration), 
+          sd = sd(Concentration)) %>% 
+  ungroup()
+```
+
+    ## Joining with `by = join_by(Bioreplicate)`
+    ## `summarise()` has grouped output by 'Compound'. You can override using the
+    ## `.groups` argument.
+
+``` r
+data_plot <- data_precursors %>% 
+  pivot_longer(names_to = "Bioreplicate", values_to = "Concentration", -Compound) %>% 
+  left_join(Groups) %>%
+  left_join(precursors_error_bar)
+```
+
+    ## Joining with `by = join_by(Bioreplicate)`
+    ## Joining with `by = join_by(Compound, Condition)`
+
+``` r
+# reorder data
+data_plot$Condition <- factor(data_plot$Condition, levels = c("WT", "MIDY"))
+
+# plot 
+bar_plot <- ggplot(data_plot, aes(x=Condition, y=Concentration))+
+  geom_bar(stat = "summary",fun = mean, fill = "white", alpha = 1, color = "black", lwd=0.5,
+           width=0.7/length(unique(data_plot$Condition))) +
+  geom_jitter(size = 1.8, width = 0.15, shape = 21, aes(fill = Condition), alpha = 0.8) +
+  geom_errorbar(aes(ymin=mean-sd, ymax=mean+sd), width=.2,
+                position=position_dodge(0.05)) +
+  scale_fill_manual(values=c("#0072B2", "firebrick3")) +
+  theme_bw()+
+  ylab("Lipid concentration (ng/g tissue)")+
+  xlab("")+
+  theme(panel.border = element_rect(size=0.8, color = "black"),
+        axis.ticks = element_line(colour = "black"),
+        axis.text = element_text(size = 9, colour = "black"),
+        axis.title.x = element_text(size = 9, colour = "black"), 
+        axis.title.y = element_text(size = 9, colour = "black"), 
+        panel.grid =   element_blank())+
+  facet_wrap(~Compound, scales = "free_y", ncol = 6) +
+  stat_compare_means(data =  data_plot %>% 
+                       mutate(Concentration = log2(Concentration)),
+                     aes(label = sprintf("p = %5.2f", as.numeric(..p.format..))),
+                     label.x = 2, 
+                     hjust = 1, 
+                     method = "t.test", 
+                     size = 2.75, 
+                     vjust = 2.2, 
+                     angle =90)+
+  facet_wrap(~Compound, scales = "free_y", ncol = 6)+
+  theme(legend.position = "bottom", 
+        legend.box.spacing = unit(0.8, 'mm'), 
+        legend.key.height= unit(1, 'mm'),
+        legend.title = element_blank(), 
+        legend.text = element_text(size = 8))+
+  theme(strip.text.x = element_text(size = 8), strip.background = element_blank(),legend.margin=margin(0,0,0,0), legend.box.margin=margin(-12,-12,-3,-12))
+  ggsave("precursors.png", height = 3, width = 7.5, dpi = 600)
+```
+
+    ## Warning: The dot-dot notation (`..p.format..`) was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `after_stat(p.format)` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+``` r
+data_precursors <- data_precursors %>% 
+  left_join(precursors_statistics_data) %>% 
+  write.table("precurosors_stat.txt", sep = "\t", row.names = F, quote = F)
+```
+
+    ## Joining with `by = join_by(Compound)`
 
 # save
 
