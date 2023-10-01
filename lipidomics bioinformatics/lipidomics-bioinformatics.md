@@ -206,7 +206,7 @@ panel.grid.major = element_blank(), panel.grid.minor = element_blank())+
     ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
     ## generated.
 
-### Orthogonal Projections to Latent Structures Discriminant Analysis (OPLS-DA) (calculations)
+### Orthogonal Projections to Latent Structures Discriminant Analysis (OPLS-DA) (calculations) (model is overfitted)
 
 ``` r
 oplsda_function <- function (data, scaling = "pareto", n_perm = 200, 
@@ -340,24 +340,10 @@ theme(legend.position = "top", legend.box.spacing = unit(0.5, 'mm'),
 
 ``` r
 # row 1
-P1 <- ggarrange(pcaplot, oplsdaplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
+P1 <- ggarrange(pcaplot, volcanoplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
           labels = c("A", "B"), font.label = list(size = 17, face = 'bold'), 
           ncol = 2, nrow = 1,  legend = "bottom",
           common.legend = T)
-# row 2
-P2 <- ggarrange(vipplot, volcanoplot, widths = c(3.4, 3.4), heights = c(3.4, 3.4),
-          labels = c("C", "D"), font.label = list(size = 17, face = 'bold'),
-          ncol = 2, nrow = 1,  legend = "bottom",
-          common.legend = T)
-
-# combine all and save
-ggarrange(P1,P2, 
-          ncol = 1, nrow = 2, widths = c(6.8, 6.8), heights = c(6.8, 6.8))
-```
-
-![](lipidomics-bioinformatics_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
-
-``` r
 ggsave("lipidomics.svg", height = 7.1, width = 7.1)
 ```
 
@@ -429,7 +415,7 @@ bar_plot <- ggplot(data_plot, aes(x=Condition, y=Concentration))+
                 position=position_dodge(0.05)) +
   scale_fill_manual(values=c("#0072B2", "firebrick3")) +
   theme_bw()+
-  ylab("Lipid concentration (ng/g tissue)")+
+  ylab("Lipid concentration (ng/mg tissue)")+
   xlab("")+
   theme(panel.border = element_rect(size=0.8, color = "black"),
         axis.ticks = element_line(colour = "black"),
@@ -474,9 +460,8 @@ data_precursors <- data_precursors %>%
 # save
 
 ``` r
-lipidomics_stat <- data_oplsda[[2]] %>% 
-  arrange(desc(VIP)) %>% 
-  select(1:4) %>% 
+lipidomics_stat <- statistics_data %>% 
+  select(1:3) %>% 
   write.table("lipidomics_stat.txt", sep = "\t", row.names = F, quote = F)
 
 save.image()
